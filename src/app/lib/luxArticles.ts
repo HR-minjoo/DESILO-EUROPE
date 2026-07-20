@@ -46,5 +46,5 @@ export async function fetchLuxArticles(): Promise<FetchLuxArticlesResult> {
 export function getFeaturedArticles(articles: Article[]): Article[] {
   return articles
     .filter(article => article.isFeatured)
-    .sort((a, b) => (a.featuredOrder ?? 99) - (b.featuredOrder ?? 99));
+    .sort((a, b) => (a.featureOrder ?? 99) - (b.featureOrder ?? 99));
 }

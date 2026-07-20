@@ -23,6 +23,12 @@ export type BodyBlock =
   | { type: "quote"; text: string; attribution?: string }
   | { type: "ul"; items: string[] };
 
+export type ArticleSeo = {
+  metaTitle?: string;
+  metaDescription?: string;
+  shareImage?: string;
+};
+
 export type Article = {
   id: string;
   title: string;
@@ -31,18 +37,16 @@ export type Article = {
   body: BodyBlock[];
   coverImage?: string;
   coverImageAlt?: string;
-  category: string; // category slug
-  author: string;   // author id
+  lux_category: string;
+  lux_author: string;
   readingTime: number;
-  status: "published" | "draft";
+  articleStatus: "published" | "draft";
   isFeatured: boolean;
-  featuredOrder?: number;
+  featureOrder?: number;
   publishedAt: string;
   updatedAt?: string;
-  tags: string[];
-  seoTitle?: string;
-  seoDescription?: string;
   language: "en" | "de" | "fr" | "ko";
+  seo?: ArticleSeo;
 };
 
 // ─── Authors ─────────────────────────────────────────────────────────────────
@@ -146,7 +150,7 @@ export const articleBySlug = (slug: string) =>
 
 export const featuredArticles = articles
   .filter(a => a.isFeatured)
-  .sort((a, b) => (a.featuredOrder ?? 99) - (b.featuredOrder ?? 99));
+  .sort((a, b) => (a.featureOrder ?? 99) - (b.featureOrder ?? 99));
 
 export const categoryColorMap: Record<string, string> = {
   "tech-insights": "#FF5A1F",

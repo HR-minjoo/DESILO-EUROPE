@@ -124,7 +124,7 @@ function Block({ block }: { block: BodyBlock }) {
 function RelatedCard({ article }: { article: (typeof articles)[0] }) {
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
-  const accentColor = categoryColorMap[article.category] ?? C.orange;
+  const accentColor = categoryColorMap[article.lux_category] ?? C.orange;
 
   return (
     <motion.div
@@ -134,7 +134,7 @@ function RelatedCard({ article }: { article: (typeof articles)[0] }) {
       className="cursor-pointer rounded-sm border p-5 flex flex-col gap-3 transition-colors"
       style={{ background: C.navyCard, borderColor: hovered ? C.borderOrange : C.border }}>
       <p className="text-xs f-mono uppercase tracking-wider" style={{ color: accentColor }}>
-        {categoryDisplayName[article.category]}
+        {categoryDisplayName[article.lux_category]}
       </p>
       <h3 className="f-display font-semibold leading-tight text-base"
         style={{ color: hovered ? C.orange : C.offWhite, transition: "color 0.2s" }}>
@@ -172,12 +172,12 @@ export default function ArticleDetail() {
     );
   }
 
-  const author = authorById(article.author);
-  const category = categoryBySlug(article.category);
-  const accentColor = categoryColorMap[article.category] ?? C.orange;
+  const author = authorById(article.lux_author);
+  const category = categoryBySlug(article.lux_category);
+  const accentColor = categoryColorMap[article.lux_category] ?? C.orange;
 
   const related = articles
-    .filter(a => a.id !== article.id && a.category === article.category)
+    .filter(a => a.id !== article.id && a.lux_category === article.lux_category)
     .slice(0, 3);
 
   const articleDescription = article.excerpt.length > 160
@@ -284,18 +284,6 @@ export default function ArticleDetail() {
             <Block key={i} block={block} />
           ))}
         </div>
-
-        {/* Tags */}
-        {article.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-12 pt-8 border-t" style={{ borderColor: C.border }}>
-            {article.tags.map(tag => (
-              <span key={tag} className="text-xs f-mono px-3 py-1 rounded-sm"
-                style={{ background: C.navyCard, color: C.muted, border: `1px solid ${C.border}` }}>
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
       </motion.div>
 
       {/* ── Author Bio ── */}

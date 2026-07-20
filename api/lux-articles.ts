@@ -7,6 +7,12 @@ type BodyBlock =
   | { type: "quote"; text: string; attribution?: string }
   | { type: "ul"; items: string[] };
 
+export type LuxArticleSeo = {
+  metaTitle?: string;
+  metaDescription?: string;
+  shareImage?: string;
+};
+
 export type LuxArticle = {
   id: string;
   title: string;
@@ -15,46 +21,42 @@ export type LuxArticle = {
   body: BodyBlock[];
   coverImage?: string;
   coverImageAlt?: string;
-  category: string;
-  author: string;
+  lux_category: string;
+  lux_author: string;
   readingTime: number;
-  status: "published" | "draft";
+  articleStatus: "published" | "draft";
   isFeatured: boolean;
-  featuredOrder?: number;
+  featureOrder?: number;
   publishedAt: string;
   updatedAt?: string;
-  tags: string[];
-  seoTitle?: string;
-  seoDescription?: string;
   language: "en" | "de" | "fr" | "ko";
+  seo?: LuxArticleSeo;
 };
 
 const STRAPI_ENDPOINTS = ["lux-articles", "lux_articles"] as const;
 const STRAPI_TIMEOUT_MS = 30_000;
 const STRAPI_PAGE_SIZE = 20;
 
-/** Scalar fields needed for the News list (body/rich text intentionally excluded). */
+/** Scalar fields on the Lux-Article content type (body excluded for list performance). */
 const STRAPI_LIST_FIELDS = [
   "title",
   "slug",
   "excerpt",
-  "summary",
-  "description",
-  "intro",
+  "coverImageAlt",
   "readingTime",
   "isFeatured",
-  "featuredOrder",
+  "featureOrder",
+  "articleStatus",
+  "language",
   "publishedAt",
   "updatedAt",
-  "seoDescription",
-  "metaDescription",
 ] as const;
 
-/** Relations populated with minimal nested fields (Strapi v5 bracket syntax). */
+/** Relations and components populated with minimal nested fields (Strapi v5 bracket syntax). */
 const STRAPI_POPULATE_RELATIONS = [
-  { relation: "category", fields: ["slug", "name"] },
-  { relation: "author", fields: ["slug", "name", "username"] },
-  { relation: "coverImage", fields: ["url", "alternativeText"] },
+  { relation: "lux_category", fields: ["slug", "name"] },
+  { relation: "lux_author", fields: ["slug", "name"] },
+  { relation: "coverImage", fields: ["url"] },
 ] as const;
 
 function buildStrapiListParams(): Record<string, string | number> {
@@ -74,6 +76,10 @@ function buildStrapiListParams(): Record<string, string | number> {
       params[`populate[${relation}][fields][${index}]`] = field;
     });
   }
+
+  params["populate[seo][fields][0]"] = "metaTitle";
+  params["populate[seo][fields][1]"] = "metaDescription";
+  params["populate[seo][populate][shareImage][fields][0]"] = "url";
 
   return params;
 }
@@ -121,6 +127,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/** Normalizes Strapi v4 (attributes) and v5 (flat) entry shapes. */
 function unwrapEntry(entry: unknown): Record<string, unknown> {
   if (!isRecord(entry)) return {};
 
@@ -177,18 +184,15 @@ function pickNumber(source: Record<string, unknown>, ...keys: string[]): number 
   return undefined;
 }
 
-function getMediaUrl(media: unknown, baseUrl: string): { url?: string; alt?: string } {
+function getMediaUrl(media: unknown, baseUrl: string): string | undefined {
   const unwrapped = unwrapRelation(media);
-  if (!unwrapped) return {};
+  if (!unwrapped) return undefined;
 
   const rawUrl = pickString(unwrapped, "url");
-  if (!rawUrl) return {};
+  if (!rawUrl) return undefined;
 
   const normalizedBase = baseUrl.replace(/\/$/, "");
-  const url = rawUrl.startsWith("http") ? rawUrl : `${normalizedBase}${rawUrl}`;
-  const alt = pickString(unwrapped, "alternativeText", "alt", "name");
-
-  return { url, alt };
+  return rawUrl.startsWith("http") ? rawUrl : `${normalizedBase}${rawUrl}`;
 }
 
 function formatPublishedDate(value: unknown): string {
@@ -279,7 +283,7 @@ function mapCategorySlug(category: Record<string, unknown> | null): string {
   const slug = pickString(category, "slug");
   if (slug) return slug;
 
-  const name = pickString(category, "name", "title");
+  const name = pickString(category, "name");
   if (!name) return "tech-insights";
 
   return name
@@ -292,10 +296,10 @@ function mapCategorySlug(category: Record<string, unknown> | null): string {
 function mapAuthorId(author: Record<string, unknown> | null): string {
   if (!author) return "desilo-team";
 
-  const slug = pickString(author, "slug", "username");
+  const slug = pickString(author, "slug");
   if (slug) return slug;
 
-  const name = pickString(author, "name", "title");
+  const name = pickString(author, "name");
   if (!name) return "desilo-team";
 
   return name
@@ -304,16 +308,9 @@ function mapAuthorId(author: Record<string, unknown> | null): string {
     .replace(/^-+|-+$/g, "");
 }
 
-function mapTags(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-
-  return value
-    .map(item => {
-      if (typeof item === "string") return item;
-      if (isRecord(item)) return pickString(item, "name", "title", "label");
-      return undefined;
-    })
-    .filter((tag): tag is string => Boolean(tag));
+function mapArticleStatus(value: unknown): LuxArticle["articleStatus"] {
+  if (value === "draft") return "draft";
+  return "published";
 }
 
 function mapLanguage(value: unknown): LuxArticle["language"] {
@@ -323,30 +320,39 @@ function mapLanguage(value: unknown): LuxArticle["language"] {
   return "en";
 }
 
+function mapSeo(raw: Record<string, unknown>, baseUrl: string): LuxArticleSeo | undefined {
+  const seo = isRecord(raw.seo) ? raw.seo : null;
+  if (!seo) return undefined;
+
+  const metaTitle = pickString(seo, "metaTitle");
+  const metaDescription = pickString(seo, "metaDescription");
+  const shareImage = getMediaUrl(seo.shareImage, baseUrl);
+
+  if (!metaTitle && !metaDescription && !shareImage) return undefined;
+
+  return {
+    ...(metaTitle ? { metaTitle } : {}),
+    ...(metaDescription ? { metaDescription } : {}),
+    ...(shareImage ? { shareImage } : {}),
+  };
+}
+
 function mapArticle(entry: unknown, baseUrl: string): LuxArticle | null {
   const raw = unwrapEntry(entry);
-  const title = pickString(raw, "title", "name");
+  const title = pickString(raw, "title");
   const slug = pickString(raw, "slug");
 
   if (!title || !slug) return null;
 
-  const category = unwrapRelation(raw.category ?? raw.categories);
-  const author = unwrapRelation(raw.author ?? raw.authors);
-  const coverMedia = getMediaUrl(raw.coverImage ?? raw.cover ?? raw.image ?? raw.thumbnail, baseUrl);
-
-  const excerpt =
-    pickString(raw, "excerpt", "summary", "description", "intro") ??
-    pickString(raw, "seoDescription", "metaDescription") ??
-    "";
-
-  const bodySource = raw.body ?? raw.content ?? raw.blocks ?? raw.richText;
-  const body = blocksFromRichText(bodySource);
+  const luxCategory = unwrapRelation(raw.lux_category);
+  const luxAuthor = unwrapRelation(raw.lux_author);
+  const excerpt = pickString(raw, "excerpt") ?? "";
+  const body = blocksFromRichText(raw.body);
   const readingTime =
-    pickNumber(raw, "readingTime", "reading_time", "readTime") ??
+    pickNumber(raw, "readingTime") ??
     estimateReadingTime(`${title} ${excerpt} ${body.map(block => ("text" in block ? block.text : "")).join(" ")}`);
 
   const id = String(raw.documentId ?? raw.id ?? slug);
-  const publishedAtRaw = raw.publishedAt ?? raw.publishDate ?? raw.createdAt;
 
   return {
     id,
@@ -354,20 +360,18 @@ function mapArticle(entry: unknown, baseUrl: string): LuxArticle | null {
     slug,
     excerpt,
     body,
-    coverImage: coverMedia.url,
-    coverImageAlt: coverMedia.alt,
-    category: mapCategorySlug(category),
-    author: mapAuthorId(author),
+    coverImage: getMediaUrl(raw.coverImage, baseUrl),
+    coverImageAlt: pickString(raw, "coverImageAlt"),
+    lux_category: mapCategorySlug(luxCategory),
+    lux_author: mapAuthorId(luxAuthor),
     readingTime,
-    status: "published",
-    isFeatured: pickBoolean(raw, "isFeatured", "is_featured", "featured"),
-    featuredOrder: pickNumber(raw, "featuredOrder", "featured_order"),
-    publishedAt: formatPublishedDate(publishedAtRaw),
-    updatedAt: pickString(raw, "updatedAt", "updated_at"),
-    tags: mapTags(raw.tags),
-    seoTitle: pickString(raw, "seoTitle", "seo_title", "metaTitle"),
-    seoDescription: pickString(raw, "seoDescription", "seo_description", "metaDescription"),
-    language: mapLanguage(raw.language ?? raw.locale),
+    articleStatus: mapArticleStatus(raw.articleStatus),
+    isFeatured: pickBoolean(raw, "isFeatured"),
+    featureOrder: pickNumber(raw, "featureOrder"),
+    publishedAt: formatPublishedDate(raw.publishedAt),
+    updatedAt: pickString(raw, "updatedAt"),
+    language: mapLanguage(raw.language),
+    seo: mapSeo(raw, baseUrl),
   };
 }
 

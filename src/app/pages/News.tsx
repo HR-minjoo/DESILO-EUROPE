@@ -215,7 +215,7 @@ function FeaturedCard({ article, index }: { article: Article; index: number }) {
   const navigate = useNavigate();
   const { lang } = useLang();
   const t = T[lang];
-  const accentColor = categoryColorMap[article.category] ?? C.orange;
+  const accentColor = categoryColorMap[article.lux_category] ?? C.orange;
 
   return (
     <motion.article initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
@@ -231,7 +231,7 @@ function FeaturedCard({ article, index }: { article: Article; index: number }) {
           animate={{ scale: hovered ? 1.05 : 1 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
           <p className="f-display text-6xl font-semibold opacity-20" style={{ color: accentColor }}>
-            {categoryDisplayName[article.category]?.split(" ")[0].toUpperCase() ?? "DESILO"}
+            {categoryDisplayName[article.lux_category]?.split(" ")[0].toUpperCase() ?? "DESILO"}
           </p>
         </motion.div>
         <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 0%, ${C.navyCard} 100%)` }} />
@@ -239,7 +239,7 @@ function FeaturedCard({ article, index }: { article: Article; index: number }) {
 
       <div className="p-6">
         <p className="text-xs f-mono uppercase tracking-wider mb-3" style={{ color: accentColor }}>
-          {categoryDisplayName[article.category]}
+          {categoryDisplayName[article.lux_category]}
         </p>
 
         <motion.h3 className="f-display font-semibold text-xl lg:text-2xl leading-tight mb-3"
@@ -249,7 +249,7 @@ function FeaturedCard({ article, index }: { article: Article; index: number }) {
         </motion.h3>
 
         <p className="text-sm f-mono mb-4" style={{ color: C.dim }}>
-          {article.publishedAt} · {article.author.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+          {article.publishedAt} · {article.lux_author.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
         </p>
 
         <div className="flex items-center gap-2 text-sm font-medium" style={{ color: C.orange }}>
@@ -273,7 +273,7 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
   const navigate = useNavigate();
   const { lang } = useLang();
   const t = T[lang];
-  const accentColor = categoryColorMap[article.category] ?? C.orange;
+  const accentColor = categoryColorMap[article.lux_category] ?? C.orange;
 
   return (
     <motion.article initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }}
@@ -288,7 +288,7 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
           animate={{ scale: hovered ? 1.05 : 1 }}
           transition={{ duration: 0.5 }}>
           <p className="f-display text-5xl font-semibold opacity-15" style={{ color: accentColor }}>
-            {categoryDisplayName[article.category]?.split(" ")[0].toUpperCase() ?? "DESILO"}
+            {categoryDisplayName[article.lux_category]?.split(" ")[0].toUpperCase() ?? "DESILO"}
           </p>
         </motion.div>
       </div>
@@ -296,7 +296,7 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
       <div className="p-5">
         <div className="flex items-center gap-3 mb-3">
           <p className="text-xs f-mono uppercase tracking-wider" style={{ color: accentColor }}>
-            {categoryDisplayName[article.category]}
+            {categoryDisplayName[article.lux_category]}
           </p>
           <span style={{ color: C.dim }}>·</span>
           <div className="flex items-center gap-1.5 text-xs f-mono" style={{ color: C.dim }}>
@@ -381,7 +381,7 @@ function LatestGrid({
 
   const nonFeatured =
     loadState.kind === "ready" ? loadState.articles.filter(a => !a.isFeatured) : [];
-  const filtered = slug ? nonFeatured.filter(a => a.category === slug) : nonFeatured;
+  const filtered = slug ? nonFeatured.filter(a => a.lux_category === slug) : nonFeatured;
   const visible = filtered.slice(0, visibleCount);
   const hasMore = visibleCount < filtered.length;
 
