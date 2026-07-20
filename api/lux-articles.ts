@@ -30,6 +30,92 @@ export type LuxArticle = {
 };
 
 const STRAPI_ENDPOINTS = ["lux-articles", "lux_articles"] as const;
+const STRAPI_TIMEOUT_MS = 30_000;
+const STRAPI_PAGE_SIZE = 20;
+
+/** Scalar fields needed for the News list (body/rich text intentionally excluded). */
+const STRAPI_LIST_FIELDS = [
+  "title",
+  "slug",
+  "excerpt",
+  "summary",
+  "description",
+  "intro",
+  "readingTime",
+  "isFeatured",
+  "featuredOrder",
+  "publishedAt",
+  "updatedAt",
+  "seoDescription",
+  "metaDescription",
+] as const;
+
+/** Relations populated with minimal nested fields (Strapi v5 bracket syntax). */
+const STRAPI_POPULATE_RELATIONS = [
+  { relation: "category", fields: ["slug", "name"] },
+  { relation: "author", fields: ["slug", "name", "username"] },
+  { relation: "coverImage", fields: ["url", "alternativeText"] },
+] as const;
+
+function buildStrapiListParams(): Record<string, string | number> {
+  const params: Record<string, string | number> = {
+    status: "published",
+    "pagination[page]": 1,
+    "pagination[pageSize]": STRAPI_PAGE_SIZE,
+    "sort[0]": "publishedAt:desc",
+  };
+
+  STRAPI_LIST_FIELDS.forEach((field, index) => {
+    params[`fields[${index}]`] = field;
+  });
+
+  for (const { relation, fields } of STRAPI_POPULATE_RELATIONS) {
+    fields.forEach((field, index) => {
+      params[`populate[${relation}][fields][${index}]`] = field;
+    });
+  }
+
+  return params;
+}
+
+function extractStrapiErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as
+      | { error?: { message?: string }; message?: string }
+      | undefined;
+
+    return data?.error?.message ?? data?.message ?? error.message;
+  }
+
+  return error instanceof Error ? error.message : "Failed to fetch articles from Strapi.";
+}
+
+function logStrapiRequest(event: {
+  phase: "success" | "error" | "retry";
+  url: string;
+  durationMs: number;
+  endpoint: string;
+  status?: number;
+  error?: string;
+}) {
+  const { phase, url, durationMs, endpoint, status, error } = event;
+  const payload = {
+    service: "lux-articles",
+    phase,
+    endpoint,
+    url,
+    durationMs,
+    ...(status !== undefined ? { status } : {}),
+    ...(error ? { error } : {}),
+  };
+
+  if (phase === "error") {
+    console.error("[lux-articles] Strapi request failed", payload);
+    return;
+  }
+
+  console.log("[lux-articles] Strapi request", payload);
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -288,31 +374,69 @@ function mapArticle(entry: unknown, baseUrl: string): LuxArticle | null {
 async function fetchFromStrapi(baseUrl: string, apiKey: string) {
   const normalizedBase = baseUrl.replace(/\/$/, "");
   const headers = { Authorization: `Bearer ${apiKey}` };
-  const params = {
-    status: "published",
-    "pagination[page]": 1,
-    "pagination[pageSize]": 200,
-    populate: "*",
-  };
+  const params = buildStrapiListParams();
 
   let lastError: unknown;
+  let lastDurationMs = 0;
+  let lastRequestUrl = "";
 
   for (const endpoint of STRAPI_ENDPOINTS) {
     const url = `${normalizedBase}/api/${endpoint}`;
+    const requestUrl = axios.getUri({ url, params });
+    const startedAt = Date.now();
 
     try {
-      const response = await axios.get(url, { headers, params, timeout: 15000 });
-      return { response, endpoint };
+      const response = await axios.get(url, { headers, params, timeout: STRAPI_TIMEOUT_MS });
+      const durationMs = Date.now() - startedAt;
+
+      logStrapiRequest({
+        phase: "success",
+        url: requestUrl,
+        durationMs,
+        endpoint,
+        status: response.status,
+      });
+
+      return { response, endpoint, durationMs, requestUrl };
     } catch (error) {
       lastError = error;
+      lastDurationMs = Date.now() - startedAt;
+      lastRequestUrl = requestUrl;
+      const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+      const errorMessage = extractStrapiErrorMessage(error);
 
       if (axios.isAxiosError(error) && error.response?.status === 404) {
+        logStrapiRequest({
+          phase: "retry",
+          url: requestUrl,
+          durationMs: lastDurationMs,
+          endpoint,
+          status,
+          error: errorMessage,
+        });
         continue;
       }
+
+      logStrapiRequest({
+        phase: "error",
+        url: requestUrl,
+        durationMs: lastDurationMs,
+        endpoint,
+        status,
+        error: errorMessage,
+      });
 
       throw error;
     }
   }
+
+  logStrapiRequest({
+    phase: "error",
+    url: lastRequestUrl,
+    durationMs: lastDurationMs,
+    endpoint: STRAPI_ENDPOINTS[STRAPI_ENDPOINTS.length - 1],
+    error: extractStrapiErrorMessage(lastError),
+  });
 
   throw lastError ?? new Error("Unable to reach Strapi lux-articles endpoint.");
 }
@@ -330,8 +454,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: "Strapi environment variables are not configured." });
   }
 
+  const handlerStartedAt = Date.now();
+
   try {
-    const { response } = await fetchFromStrapi(strapiUrl, strapiApiKey);
+    const { response, durationMs, requestUrl, endpoint } = await fetchFromStrapi(strapiUrl, strapiApiKey);
     const payload = response.data;
     const entries = Array.isArray(payload?.data) ? payload.data : [];
 
@@ -344,19 +470,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return (Number.isNaN(bTime) ? 0 : bTime) - (Number.isNaN(aTime) ? 0 : aTime);
       });
 
+    console.log("[lux-articles] Handler completed", {
+      endpoint,
+      url: requestUrl,
+      strapiDurationMs: durationMs,
+      totalDurationMs: Date.now() - handlerStartedAt,
+      status: response.status,
+      articleCount: articles.length,
+    });
+
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=300");
     return res.status(200).json({ articles });
   } catch (error) {
-    const message =
-      axios.isAxiosError(error)
-        ? error.response?.data?.error?.message ??
-          error.response?.data?.message ??
-          error.message
-        : error instanceof Error
-          ? error.message
-          : "Failed to fetch articles from Strapi.";
-
+    const message = extractStrapiErrorMessage(error);
     const status = axios.isAxiosError(error) ? error.response?.status ?? 502 : 502;
+
+    console.error("[lux-articles] Handler failed", {
+      totalDurationMs: Date.now() - handlerStartedAt,
+      status,
+      error: message,
+    });
 
     return res.status(status >= 400 && status < 600 ? status : 502).json({ error: message });
   }
