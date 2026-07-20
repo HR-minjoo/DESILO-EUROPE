@@ -37,8 +37,8 @@ const STRAPI_ENDPOINTS = ["lux-articles", "lux_articles"] as const;
 const STRAPI_TIMEOUT_MS = 30_000;
 const STRAPI_PAGE_SIZE = 20;
 
-/** Scalar fields on the Lux-Article content type (body excluded for list performance). */
-const STRAPI_LIST_FIELDS = [
+/** Scalar fields on Lux-Article (system fields publishedAt/updatedAt omitted — returned by default). */
+const STRAPI_ARTICLE_SCALAR_FIELDS = [
   "title",
   "slug",
   "excerpt",
@@ -48,43 +48,86 @@ const STRAPI_LIST_FIELDS = [
   "featureOrder",
   "articleStatus",
   "language",
-  "publishedAt",
-  "updatedAt",
 ] as const;
 
-/** Lux-Category scalar fields (slug used for filtering; name as fallback). */
-const LUX_CATEGORY_POPULATE_FIELDS = ["slug", "name"] as const;
-
-/** Lux-Author scalar fields — no slug on this content type. */
-const LUX_AUTHOR_POPULATE_FIELDS = ["name", "role"] as const;
-
-function buildStrapiListParams(): Record<string, string | number> {
-  const params: Record<string, string | number> = {
+function buildStrapiListParams(): Record<string, string | number | boolean> {
+  const params: Record<string, string | number | boolean> = {
     status: "published",
     "pagination[page]": 1,
     "pagination[pageSize]": STRAPI_PAGE_SIZE,
     "sort[0]": "publishedAt:desc",
+    "populate[lux_category]": true,
+    "populate[lux_author]": true,
+    "populate[coverImage]": true,
   };
 
-  STRAPI_LIST_FIELDS.forEach((field, index) => {
+  STRAPI_ARTICLE_SCALAR_FIELDS.forEach((field, index) => {
     params[`fields[${index}]`] = field;
   });
 
-  LUX_CATEGORY_POPULATE_FIELDS.forEach((field, index) => {
-    params[`populate[lux_category][fields][${index}]`] = field;
-  });
-
-  LUX_AUTHOR_POPULATE_FIELDS.forEach((field, index) => {
-    params[`populate[lux_author][fields][${index}]`] = field;
-  });
-
-  params["populate[coverImage][fields][0]"] = "url";
-
-  params["populate[seo][fields][0]"] = "metaTitle";
-  params["populate[seo][fields][1]"] = "metaDescription";
-  params["populate[seo][populate][shareImage][fields][0]"] = "url";
-
   return params;
+}
+
+function collectObjectKeys(value: unknown): string[] {
+  if (!isRecord(value)) return [];
+  return Object.keys(value);
+}
+
+function collectRelationKeys(value: unknown): string[] {
+  if (value == null) return [];
+
+  if (isRecord(value) && "data" in value) {
+    const data = value.data;
+    if (data == null) return [];
+    if (Array.isArray(data)) {
+      const first = data[0];
+      return first ? collectObjectKeys(unwrapEntry(first)) : [];
+    }
+    return collectObjectKeys(unwrapEntry(data));
+  }
+
+  const unwrapped = unwrapRelation(value);
+  return unwrapped ? Object.keys(unwrapped) : collectObjectKeys(value);
+}
+
+function logResponseStructure(entries: unknown[]) {
+  const sample = entries[0];
+  if (!sample) {
+    console.log("[lux-articles] Response structure", { sampleCount: 0 });
+    return;
+  }
+
+  const raw = unwrapEntry(sample);
+
+  console.log("[lux-articles] Response structure", {
+    sampleCount: entries.length,
+    articleTopLevelKeys: Object.keys(raw),
+    lux_category: {
+      present: raw.lux_category != null,
+      keys: collectRelationKeys(raw.lux_category),
+    },
+    lux_author: {
+      present: raw.lux_author != null,
+      keys: collectRelationKeys(raw.lux_author),
+    },
+    coverImage: {
+      present: raw.coverImage != null,
+      keys: collectRelationKeys(raw.coverImage),
+    },
+    seo: {
+      present: raw.seo != null,
+      keys: collectObjectKeys(raw.seo),
+    },
+  });
+}
+
+function logStrapiErrorResponse(error: unknown) {
+  if (!axios.isAxiosError(error)) return;
+
+  console.error("[lux-articles] Strapi error response", {
+    status: error.response?.status,
+    data: error.response?.data,
+  });
 }
 
 function extractStrapiErrorMessage(error: unknown): string {
@@ -320,23 +363,6 @@ function mapLanguage(value: unknown): LuxArticle["language"] {
   return "en";
 }
 
-function mapSeo(raw: Record<string, unknown>, baseUrl: string): LuxArticleSeo | undefined {
-  const seo = isRecord(raw.seo) ? raw.seo : null;
-  if (!seo) return undefined;
-
-  const metaTitle = pickString(seo, "metaTitle");
-  const metaDescription = pickString(seo, "metaDescription");
-  const shareImage = getMediaUrl(seo.shareImage, baseUrl);
-
-  if (!metaTitle && !metaDescription && !shareImage) return undefined;
-
-  return {
-    ...(metaTitle ? { metaTitle } : {}),
-    ...(metaDescription ? { metaDescription } : {}),
-    ...(shareImage ? { shareImage } : {}),
-  };
-}
-
 function mapArticle(entry: unknown, baseUrl: string): LuxArticle | null {
   const raw = unwrapEntry(entry);
   const title = pickString(raw, "title");
@@ -344,8 +370,8 @@ function mapArticle(entry: unknown, baseUrl: string): LuxArticle | null {
 
   if (!title || !slug) return null;
 
-  const luxCategory = unwrapRelation(raw.lux_category);
-  const luxAuthor = unwrapRelation(raw.lux_author);
+  const luxCategory = unwrapRelation(raw.lux_category ?? null);
+  const luxAuthor = unwrapRelation(raw.lux_author ?? null);
   const excerpt = pickString(raw, "excerpt") ?? "";
   const body = blocksFromRichText(raw.body);
   const readingTime =
@@ -360,7 +386,7 @@ function mapArticle(entry: unknown, baseUrl: string): LuxArticle | null {
     slug,
     excerpt,
     body,
-    coverImage: getMediaUrl(raw.coverImage, baseUrl),
+    coverImage: getMediaUrl(raw.coverImage ?? null, baseUrl),
     coverImageAlt: pickString(raw, "coverImageAlt"),
     lux_category: mapCategorySlug(luxCategory),
     lux_author: mapAuthorId(luxAuthor),
@@ -371,7 +397,6 @@ function mapArticle(entry: unknown, baseUrl: string): LuxArticle | null {
     publishedAt: formatPublishedDate(raw.publishedAt),
     updatedAt: pickString(raw, "updatedAt"),
     language: mapLanguage(raw.language),
-    seo: mapSeo(raw, baseUrl),
   };
 }
 
@@ -408,6 +433,8 @@ async function fetchFromStrapi(baseUrl: string, apiKey: string) {
       lastRequestUrl = requestUrl;
       const status = axios.isAxiosError(error) ? error.response?.status : undefined;
       const errorMessage = extractStrapiErrorMessage(error);
+
+      logStrapiErrorResponse(error);
 
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         logStrapiRequest({
@@ -465,6 +492,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const payload = response.data;
     const entries = Array.isArray(payload?.data) ? payload.data : [];
 
+    logResponseStructure(entries);
+
     const articles = entries
       .map((entry: unknown) => mapArticle(entry, strapiUrl))
       .filter((article: LuxArticle | null): article is LuxArticle => article !== null)
@@ -486,6 +515,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=300");
     return res.status(200).json({ articles });
   } catch (error) {
+    logStrapiErrorResponse(error);
     const message = extractStrapiErrorMessage(error);
     const status = axios.isAxiosError(error) ? error.response?.status ?? 502 : 502;
 
