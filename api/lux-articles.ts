@@ -290,8 +290,8 @@ async function fetchFromStrapi(baseUrl: string, apiKey: string) {
   const headers = { Authorization: `Bearer ${apiKey}` };
   const params = {
     status: "published",
+    "pagination[page]": 1,
     "pagination[pageSize]": 200,
-    "pagination[limit]": 200,
     populate: "*",
   };
 
