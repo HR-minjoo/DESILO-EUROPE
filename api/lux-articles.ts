@@ -52,12 +52,11 @@ const STRAPI_LIST_FIELDS = [
   "updatedAt",
 ] as const;
 
-/** Relations and components populated with minimal nested fields (Strapi v5 bracket syntax). */
-const STRAPI_POPULATE_RELATIONS = [
-  { relation: "lux_category", fields: ["slug", "name"] },
-  { relation: "lux_author", fields: ["slug", "name"] },
-  { relation: "coverImage", fields: ["url"] },
-] as const;
+/** Lux-Category scalar fields (slug used for filtering; name as fallback). */
+const LUX_CATEGORY_POPULATE_FIELDS = ["slug", "name"] as const;
+
+/** Lux-Author scalar fields — no slug on this content type. */
+const LUX_AUTHOR_POPULATE_FIELDS = ["name", "role"] as const;
 
 function buildStrapiListParams(): Record<string, string | number> {
   const params: Record<string, string | number> = {
@@ -71,11 +70,15 @@ function buildStrapiListParams(): Record<string, string | number> {
     params[`fields[${index}]`] = field;
   });
 
-  for (const { relation, fields } of STRAPI_POPULATE_RELATIONS) {
-    fields.forEach((field, index) => {
-      params[`populate[${relation}][fields][${index}]`] = field;
-    });
-  }
+  LUX_CATEGORY_POPULATE_FIELDS.forEach((field, index) => {
+    params[`populate[lux_category][fields][${index}]`] = field;
+  });
+
+  LUX_AUTHOR_POPULATE_FIELDS.forEach((field, index) => {
+    params[`populate[lux_author][fields][${index}]`] = field;
+  });
+
+  params["populate[coverImage][fields][0]"] = "url";
 
   params["populate[seo][fields][0]"] = "metaTitle";
   params["populate[seo][fields][1]"] = "metaDescription";
@@ -295,9 +298,6 @@ function mapCategorySlug(category: Record<string, unknown> | null): string {
 
 function mapAuthorId(author: Record<string, unknown> | null): string {
   if (!author) return "desilo-team";
-
-  const slug = pickString(author, "slug");
-  if (slug) return slug;
 
   const name = pickString(author, "name");
   if (!name) return "desilo-team";
