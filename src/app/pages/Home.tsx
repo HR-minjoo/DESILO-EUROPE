@@ -142,7 +142,7 @@ function Nav() {
         </div>
         <div className="flex items-center gap-3">
           <LangToggle />
-          <a href="https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0" target="_blank" rel="noopener noreferrer"
+          <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer"
             className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-sm transition-all duration-200"
             style={{ background: C.orange, color: "#fff" }}
             onMouseEnter={e => (e.currentTarget.style.background = C.orangeLight)}
@@ -162,7 +162,7 @@ function Nav() {
             <button onClick={() => go("hero")} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.home}</button>
             <button onClick={() => { setOpen(false); navigate("/product"); }} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.product}</button>
             <button onClick={() => { setOpen(false); navigate("/news"); }} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.news}</button>
-            <a href="https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0" target="_blank" rel="noopener noreferrer" className="inline-flex justify-center items-center py-2.5 text-sm font-medium rounded-sm"
+            <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer" className="inline-flex justify-center items-center py-2.5 text-sm font-medium rounded-sm"
               style={{ background: C.orange, color: "#fff" }}>{t.nav.cta}</a>
           </motion.div>
         )}
@@ -309,7 +309,7 @@ function Hero() {
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
           className="flex flex-wrap gap-3">
-          <a href="https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0" target="_blank" rel="noopener noreferrer"
+          <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-7 py-3 text-base font-medium rounded-sm transition-all duration-200"
             style={{ background: C.orange, color: "#fff" }}
             onMouseEnter={e => (e.currentTarget.style.background = C.orangeLight)}

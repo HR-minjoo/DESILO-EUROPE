@@ -96,7 +96,7 @@ function Nav() {
           </div>
           <div className="flex items-center gap-3">
             <LangToggle />
-            <a href="https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0" target="_blank" rel="noopener noreferrer"
+            <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-sm transition-all duration-200"
               style={{ background: C.orange, color: "#fff" }}
               onMouseEnter={e => (e.currentTarget.style.background = "#FF7040")}
