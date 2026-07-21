@@ -172,18 +172,19 @@ function Nav() {
 }
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
-const microTerms = ["AMLR Article 75", "GDPR", "DORA", "PSR"];
-
 function Hero() {
+  const { lang } = useLang();
+  const t = T[lang];
+  const microTerms = t.hero.microTerms;
   const [mx, setMx] = useState(0);
   const [my, setMy] = useState(0);
   const [mIdx, setMIdx] = useState(0);
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const t = setInterval(() => setMIdx(i => (i + 1) % microTerms.length), 3000);
-    return () => clearInterval(t);
-  }, []);
+    const timer = setInterval(() => setMIdx(i => (i + 1) % microTerms.length), 3000);
+    return () => clearInterval(timer);
+  }, [microTerms.length]);
 
   const onMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -262,9 +263,9 @@ function Hero() {
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           className="f-display leading-[0.95] tracking-tight mb-8"
           style={{ fontSize: "clamp(3rem, 7.2vw, 6.4rem)", color: C.offWhite, maxWidth: "16ch" }}>
-          <span className="block">Banks see fragments.</span>
+          <span className="block">{t.hero.h1a}</span>
           <span className="block" style={{ color: C.orange, fontStyle: "italic", fontWeight: 700, letterSpacing: "-0.01em" }}>HOLMES</span>
-          <span className="block">sees fraud.</span>
+          <span className="block">{t.hero.h1b}</span>
         </motion.h1>
 
         {/* Body copy */}
@@ -273,7 +274,7 @@ function Hero() {
           transition={{ duration: 0.8, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
           className="text-lg lg:text-xl leading-relaxed mb-5 max-w-lg"
           style={{ color: "rgba(242,238,232,0.72)" }}>
-          Using privacy-enhancing technology, we enable European banks to jointly detect cross-institutional fraud without exposing their customer data.
+          {t.hero.body}
         </motion.p>
 
         {/* Microline — rotating regulatory term */}
@@ -282,7 +283,7 @@ function Hero() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mb-8">
           <p className="text-sm font-medium f-mono leading-snug" style={{ color: "rgba(242,238,232,0.55)", textAlign: "left" }}>
-            {"Built for "}
+            {t.hero.microBase}
             <span style={{
               display: "inline-block", position: "relative", overflow: "hidden",
               height: "1.35em", minWidth: "13ch", verticalAlign: "bottom",
@@ -299,7 +300,7 @@ function Hero() {
                 </motion.span>
               </AnimatePresence>
             </span>
-            {". Raw data remains within each bank’s secure environment."}
+            {t.hero.microSuffix}
           </p>
         </motion.div>
 
@@ -313,7 +314,7 @@ function Hero() {
             style={{ background: C.orange, color: "#fff" }}
             onMouseEnter={e => (e.currentTarget.style.background = C.orangeLight)}
             onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
-            Explore cross-bank fraud
+            {t.hero.cta1}
           </a>
           <button
             onClick={() => document.getElementById("problem")?.scrollIntoView({ behavior: "smooth" })}
@@ -321,7 +322,7 @@ function Hero() {
             style={{ border: `1px solid ${C.borderOrange}`, color: "rgba(242,238,232,0.65)" }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = C.orange; e.currentTarget.style.color = C.offWhite; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.borderOrange; e.currentTarget.style.color = "rgba(242,238,232,0.65)"; }}>
-            See how it works ↓
+            {t.hero.cta2}
           </button>
         </motion.div>
       </div>
@@ -831,6 +832,8 @@ function ProblemBridge() {
 // ─── Solution ─────────────────────────────────────────────────────────────────
 function Solution() {
   const navigate = useNavigate();
+  const { lang } = useLang();
+  const t = T[lang];
   const sectionRef = useRef<HTMLElement>(null);
   const inView = useInView(sectionRef, { once: true, amount: 0.25 });
   const [hovered, setHovered] = useState(false);
@@ -884,7 +887,7 @@ function Solution() {
           initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 0.5 }}
           className="text-xs tracking-[0.2em] uppercase mb-10 f-mono" style={{ color: C.orange }}>
-          THE SOLUTION
+          {t.solution.label}
         </motion.p>
 
         {/* Text block — left half only, flows naturally against the atmospheric right */}
@@ -905,29 +908,27 @@ function Solution() {
             {/* Tagline — display-size, unified font */}
             <p className="f-display italic leading-tight mb-6"
               style={{ fontSize: "clamp(1.6rem, 2.8vw, 2.4rem)", color: "rgba(242,238,232,0.88)" }}>
-              Detection infrastructure for AMLR Article 75 partnerships&mdash;every deployment makes the network stronger.
+              {t.solution.tagline}
             </p>
 
             {/* Feature list */}
             <div className="flex flex-col gap-4 mb-10"
               style={{ paddingLeft: "1rem", borderLeft: `2px solid rgba(255,90,31,0.2)` }}>
-              {[
-                "Your Local Zone runs within your bank's perimeter;\nraw data never leaves by architecture, not policy",
-                "The Global Zone combines encrypted signals across banks,\noperated by a neutral industry body",
-                "Blind by design: Raw data stays out of reach—even to us",
-                "Quantum-resistant, built on lattice-based cryptography",
-              ].map((f, i) => (
+              {t.solution.features.map((f, i) => (
                 <p key={i} className="text-sm leading-relaxed" style={{ color: "rgba(242,238,232,0.55)", whiteSpace: "pre-line" }}>{f}</p>
               ))}
             </div>
 
             <button
-              onClick={() => navigate("/product")}
+              onClick={() => {
+                navigate("/product");
+                window.scrollTo(0, 0);
+              }}
               className="inline-flex items-center gap-2.5 px-7 py-3.5 text-sm font-medium transition-all duration-200 tracking-widest"
               style={{ background: C.orange, color: "#fff" }}
               onMouseEnter={e => (e.currentTarget.style.background = C.orangeLight)}
               onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
-              EXPLORE HOLMES <ArrowRight size={14} />
+              {t.solution.cta} <ArrowRight size={14} />
             </button>
           </motion.div>
         </div>
@@ -938,6 +939,8 @@ function Solution() {
 
 // ─── Technology ───────────────────────────────────────────────────────────────
 function Technology() {
+  const { lang } = useLang();
+  const t = T[lang];
   // Encrypted data stream animation
   const encryptedChars = "0123456789ABCDEF";
   const streamCount = 8;
@@ -1067,21 +1070,21 @@ function Technology() {
         <div className="max-w-2xl">
           <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="text-xs tracking-[0.2em] uppercase mb-12 f-mono text-right" style={{ color: C.orange }}>
-            THE TECHNOLOGY
+            {t.technology.label}
           </motion.p>
 
           <motion.h2 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="f-display font-semibold leading-tight mb-5 text-right"
             style={{ fontSize: "clamp(1.9rem, 3.8vw, 3.2rem)", color: C.offWhite }}>
-            The Cryptographic Foundation of HOLMES
+            {t.technology.h2}
           </motion.h2>
 
           <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}
             className="mb-12 text-right"
             style={{ fontSize: "clamp(1.2rem, 2vw, 1.6rem)", color: "rgba(242,238,232,0.65)", lineHeight: 1.5 }}>
-            Built on years of cryptographic research and real-world deployment by our parent company in Korea.
+            {t.technology.body}
           </motion.p>
 
           {/* Capabilities — right-aligned */}
@@ -1089,12 +1092,7 @@ function Technology() {
             viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.18 }}
             className="mb-12">
             <div className="flex flex-col gap-3">
-              {[
-                "5th-Generation FHE Scheme",
-                "Privacy-Preserving Machine Learning",
-                "Original Creators of TFHE & CKKS",
-                "Production-proven at major banks"
-              ].map((cap, i) => (
+              {t.technology.capabilities.map((cap, i) => (
                 <div key={i} className="flex items-center gap-3 justify-end">
                   <span className="text-base lg:text-lg f-mono" style={{ color: "rgba(242,238,232,0.55)" }}>
                     {cap}
@@ -1116,7 +1114,7 @@ function Technology() {
               }}
               onMouseEnter={e => { e.currentTarget.style.background = C.orangeLight; }}
               onMouseLeave={e => { e.currentTarget.style.background = C.orange; }}>
-              Explore the technology <ExternalLink size={14} />
+              {t.technology.cta} <ExternalLink size={14} />
             </a>
           </motion.div>
         </div>
@@ -1127,6 +1125,8 @@ function Technology() {
 
 // ─── Final CTA ────────────────────────────────────────────────────────────────
 function FinalCTA() {
+  const { lang } = useLang();
+  const t = T[lang];
   return (
     <section id="contact" className="relative py-36 lg:py-56 overflow-hidden" style={{ background: C.navy }}>
       <div className="absolute top-0 left-0 right-0 h-px"
@@ -1162,25 +1162,25 @@ function FinalCTA() {
           viewport={{ once: true }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="f-display font-semibold leading-tight mb-6"
           style={{ fontSize: "clamp(2rem, 5vw, 4rem)", color: C.offWhite }}>
-          Preparing to collaborate under Article 75?
+          {t.finalCta.h2}
         </motion.h2>
 
         <motion.p initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.1 }}
           className="leading-relaxed mb-10 max-w-2xl mx-auto"
           style={{ fontSize: "clamp(1.15rem, 1.8vw, 1.45rem)", color: C.muted, whiteSpace: "pre-line" }}>
-          HOLMES provides the infrastructure for a PfIS—{"\n"}the information-sharing framework established under AMLR Article 75. With HOLMES, your data remains fully protected, allowing you to meet PSD3 liability requirements without increasing compliance costs.
+          {t.finalCta.body}
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }}
           className="flex justify-center">
-          <a href="https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0" target="_blank" rel="noopener noreferrer"
+          <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-medium rounded-sm transition-all"
             style={{ background: C.orange, color: "#fff" }}
             onMouseEnter={e => (e.currentTarget.style.background = C.orangeLight)}
             onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
-            Explore HOLMES
+            {t.finalCta.cta}
           </a>
         </motion.div>
       </div>
@@ -1190,6 +1190,7 @@ function FinalCTA() {
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 function Footer() {
+  const { lang } = useLang();
   return (
     <footer style={{ background: "#040615", borderTop: `1px solid ${C.border}` }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-14 lg:py-16">
@@ -1201,13 +1202,12 @@ function Footer() {
             </div>
             <p className="text-sm leading-relaxed" style={{ color: C.dim }}>
               DESILO Europe S.à r.l.<br />
-              Luxembourg LHOFT<br />
-              9, rue du Laboratoire, L-1911 Luxembourg
+              9 Rue du Laboratoire, 1911 Gare Luxembourg
             </p>
           </div>
           <div>
             <p className="text-xs f-mono tracking-[0.15em] uppercase mb-3" style={{ color: C.dim }}>Contact</p>
-            <a href="https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0" target="_blank" rel="noopener noreferrer" className="text-sm transition-colors"
+            <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer" className="text-sm transition-colors"
               style={{ color: C.muted }}
               onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
               onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
@@ -1216,7 +1216,7 @@ function Footer() {
           </div>
           <div>
             <p className="text-xs f-mono tracking-[0.15em] uppercase mb-3" style={{ color: C.dim }}>Follow</p>
-            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"
+            <a href="https://www.linkedin.com/company/desilo-europe/" target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-sm transition-colors"
               style={{ color: C.muted }}
               onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
