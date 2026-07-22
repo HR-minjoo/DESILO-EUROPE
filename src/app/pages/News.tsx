@@ -416,22 +416,33 @@ export default function News() {
     let cancelled = false;
 
     async function loadArticles() {
+      console.log('[News] Starting to load articles...');
       setLoadState({ kind: "loading" });
 
-      const result = await fetchLuxArticles();
-      if (cancelled) return;
+      try {
+        const result = await fetchLuxArticles();
+        console.log('[News] fetchLuxArticles result:', result);
+        
+        if (cancelled) return;
 
-      if (result.status === "error") {
-        setLoadState({ kind: "error", message: result.message });
-        return;
+        if (result.status === "error") {
+          console.error('[News] Error loading articles:', result.message);
+          setLoadState({ kind: "error", message: result.message });
+          return;
+        }
+
+        if (result.status === "empty") {
+          console.log('[News] No articles found');
+          setLoadState({ kind: "empty" });
+          return;
+        }
+
+        console.log('[News] Successfully loaded', result.articles.length, 'articles');
+        setLoadState({ kind: "ready", articles: result.articles });
+      } catch (error) {
+        console.error('[News] Unexpected error:', error);
+        setLoadState({ kind: "error", message: "Failed to load articles. Please try again later." });
       }
-
-      if (result.status === "empty") {
-        setLoadState({ kind: "empty" });
-        return;
-      }
-
-      setLoadState({ kind: "ready", articles: result.articles });
     }
 
     loadArticles();
