@@ -3,6 +3,8 @@ import { SEO } from "@/app/components/SEO";
 import { motion } from "motion/react";
 import { X, Menu, ArrowLeft, Clock, ArrowRight } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import frame3Logo from "@/imports/Frame_7.png";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import {
@@ -48,11 +50,139 @@ const fontStyle = `
   }
   .f-display { font-family: var(--font-display); }
   .f-mono { font-family: var(--font-mono); }
-  .article-body p { line-height: 1.85; margin-bottom: 1.4em; color: rgba(242,238,232,0.82); font-size: clamp(1rem, 1.15vw, 1.125rem); }
-  .article-body h2 { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.25rem, 1.8vw, 1.5rem); color: #F2EEE8; margin-top: 2.5em; margin-bottom: 0.8em; line-height: 1.3; }
-  .article-body ul { padding-left: 0; margin-bottom: 1.5em; list-style: none; }
-  .article-body ul li { padding-left: 1.5em; position: relative; margin-bottom: 0.5em; color: rgba(242,238,232,0.72); font-size: clamp(0.95rem, 1.1vw, 1.05rem); line-height: 1.7; }
-  .article-body ul li::before { content: "—"; position: absolute; left: 0; color: ${C.orange}; opacity: 0.7; }
+  
+  /* Article body Markdown styling */
+  .article-body p { 
+    line-height: 1.85; 
+    margin-bottom: 1.4em; 
+    color: rgba(242,238,232,0.82); 
+    font-size: clamp(1rem, 1.15vw, 1.125rem); 
+  }
+  .article-body h1,
+  .article-body h2,
+  .article-body h3 { 
+    font-family: var(--font-display); 
+    font-weight: 600; 
+    color: #F2EEE8; 
+    margin-top: 2.5em; 
+    margin-bottom: 0.8em; 
+    line-height: 1.3; 
+  }
+  .article-body h1 { font-size: clamp(1.5rem, 2.2vw, 1.875rem); }
+  .article-body h2 { font-size: clamp(1.25rem, 1.8vw, 1.5rem); }
+  .article-body h3 { font-size: clamp(1.125rem, 1.5vw, 1.25rem); }
+  
+  .article-body ul,
+  .article-body ol { 
+    padding-left: 0; 
+    margin-bottom: 1.5em; 
+    list-style: none; 
+  }
+  .article-body ul li,
+  .article-body ol li { 
+    padding-left: 1.5em; 
+    position: relative; 
+    margin-bottom: 0.5em; 
+    color: rgba(242,238,232,0.72); 
+    font-size: clamp(0.95rem, 1.1vw, 1.05rem); 
+    line-height: 1.7; 
+  }
+  .article-body ul li::before { 
+    content: "—"; 
+    position: absolute; 
+    left: 0; 
+    color: ${C.orange}; 
+    opacity: 0.7; 
+  }
+  .article-body ol { 
+    counter-reset: item; 
+  }
+  .article-body ol li::before { 
+    content: counter(item) "."; 
+    counter-increment: item; 
+    position: absolute; 
+    left: 0; 
+    color: ${C.orange}; 
+    opacity: 0.7; 
+    font-weight: 500;
+  }
+  
+  .article-body a { 
+    color: ${C.orange}; 
+    text-decoration: none; 
+    border-bottom: 1px solid rgba(255,90,31,0.3);
+    transition: all 0.2s;
+  }
+  .article-body a:hover { 
+    border-bottom-color: ${C.orange}; 
+    opacity: 0.8;
+  }
+  
+  .article-body strong { 
+    font-weight: 600; 
+    color: rgba(242,238,232,0.95); 
+  }
+  .article-body em { 
+    font-style: italic; 
+    color: rgba(242,238,232,0.85); 
+  }
+  
+  .article-body code { 
+    font-family: var(--font-mono); 
+    background: rgba(255,90,31,0.1); 
+    color: ${C.orange}; 
+    padding: 0.2em 0.4em; 
+    border-radius: 3px; 
+    font-size: 0.9em;
+  }
+  .article-body pre { 
+    background: rgba(11,14,36,0.6); 
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 6px; 
+    padding: 1.25em; 
+    overflow-x: auto; 
+    margin: 1.5em 0;
+  }
+  .article-body pre code { 
+    background: transparent; 
+    padding: 0; 
+    color: rgba(242,238,232,0.82);
+  }
+  
+  .article-body blockquote { 
+    border-left: 2px solid ${C.orange}; 
+    padding-left: 1.5em; 
+    margin: 2em 0;
+    color: rgba(242,238,232,0.75);
+    font-style: italic;
+  }
+  
+  .article-body hr { 
+    border: none; 
+    border-top: 1px solid rgba(255,255,255,0.1); 
+    margin: 3em 0;
+  }
+  
+  .article-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2em 0;
+  }
+  .article-body table th,
+  .article-body table td {
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 0.75em 1em;
+    text-align: left;
+  }
+  .article-body table th {
+    background: rgba(255,90,31,0.1);
+    color: ${C.offWhite};
+    font-weight: 600;
+  }
+  .article-body table td {
+    color: rgba(242,238,232,0.82);
+  }
+  
   ::-webkit-scrollbar { width: 0; height: 0; }
   * { scrollbar-width: none; }
 `;
@@ -61,25 +191,44 @@ const fontStyle = `
 // ─── Body Block Renderer ──────────────────────────────────────────────────────
 function Block({ block }: { block: BodyBlock }) {
   if (block.type === "p") {
-    return <p>{block.text}</p>;
+    return (
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        {block.text}
+      </ReactMarkdown>
+    );
   }
   if (block.type === "h2") {
-    return <h2>{block.text}</h2>;
+    return (
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+        p: ({ children }) => <h2>{children}</h2>
+      }}>
+        {block.text}
+      </ReactMarkdown>
+    );
   }
   if (block.type === "quote") {
     return (
       <blockquote className="relative my-8 pl-6" style={{ borderLeft: `2px solid ${C.orange}` }}>
-        <p className="f-display italic not-italic"
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(1.05rem, 1.4vw, 1.2rem)",
-            lineHeight: 1.65,
-            color: C.offWhite,
-            marginBottom: block.attribution ? "0.5em" : 0,
-            fontStyle: "italic",
-          }}>
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]}
+          components={{
+            p: ({ children }) => (
+              <p className="f-display italic not-italic"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "clamp(1.05rem, 1.4vw, 1.2rem)",
+                  lineHeight: 1.65,
+                  color: C.offWhite,
+                  marginBottom: block.attribution ? "0.5em" : 0,
+                  fontStyle: "italic",
+                }}>
+                {children}
+              </p>
+            )
+          }}
+        >
           {block.text}
-        </p>
+        </ReactMarkdown>
         {block.attribution && (
           <p className="f-mono text-xs" style={{ color: C.muted, marginBottom: 0 }}>
             — {block.attribution}
@@ -92,7 +241,16 @@ function Block({ block }: { block: BodyBlock }) {
     return (
       <ul>
         {block.items.map((item, i) => (
-          <li key={i}>{item}</li>
+          <li key={i}>
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                p: ({ children }) => <>{children}</>
+              }}
+            >
+              {item}
+            </ReactMarkdown>
+          </li>
         ))}
       </ul>
     );
