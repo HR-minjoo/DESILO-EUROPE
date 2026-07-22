@@ -173,14 +173,29 @@ function FeaturedCard({ article, index }: { article: Article; index: number }) {
       <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: C.orange }} />
 
       <div className="relative aspect-[16/9] overflow-hidden" style={{ background: accentColor + "15" }}>
-        <motion.div className="w-full h-full flex items-center justify-center"
-          animate={{ scale: hovered ? 1.05 : 1 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-          <p className="f-display text-6xl font-semibold opacity-20" style={{ color: accentColor }}>
-            {categoryDisplayName[article.lux_category]?.split(" ")[0].toUpperCase() ?? "DESILO"}
-          </p>
-        </motion.div>
-        <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 0%, ${C.navyCard} 100%)` }} />
+        {article.coverImage ? (
+          <>
+            <motion.img 
+              src={article.coverImage}
+              alt={article.coverImageAlt || article.title}
+              className="w-full h-full object-cover"
+              animate={{ scale: hovered ? 1.05 : 1 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            />
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 0%, ${C.navyCard} 100%)` }} />
+          </>
+        ) : (
+          <>
+            <motion.div className="w-full h-full flex items-center justify-center"
+              animate={{ scale: hovered ? 1.05 : 1 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
+              <p className="f-display text-6xl font-semibold opacity-20" style={{ color: accentColor }}>
+                {categoryDisplayName[article.lux_category]?.split(" ")[0].toUpperCase() ?? "DESILO"}
+              </p>
+            </motion.div>
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 0%, ${C.navyCard} 100%)` }} />
+          </>
+        )}
       </div>
 
       <div className="p-6">
@@ -230,13 +245,23 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
       className="group cursor-pointer relative overflow-hidden rounded-sm border"
       style={{ background: C.navyCard, borderColor: C.border }}>
       <div className="relative aspect-[16/9] overflow-hidden" style={{ background: accentColor + "10" }}>
-        <motion.div className="w-full h-full flex items-center justify-center"
-          animate={{ scale: hovered ? 1.05 : 1 }}
-          transition={{ duration: 0.5 }}>
-          <p className="f-display text-5xl font-semibold opacity-15" style={{ color: accentColor }}>
-            {categoryDisplayName[article.lux_category]?.split(" ")[0].toUpperCase() ?? "DESILO"}
-          </p>
-        </motion.div>
+        {article.coverImage ? (
+          <motion.img 
+            src={article.coverImage}
+            alt={article.coverImageAlt || article.title}
+            className="w-full h-full object-cover"
+            animate={{ scale: hovered ? 1.05 : 1 }}
+            transition={{ duration: 0.5 }}
+          />
+        ) : (
+          <motion.div className="w-full h-full flex items-center justify-center"
+            animate={{ scale: hovered ? 1.05 : 1 }}
+            transition={{ duration: 0.5 }}>
+            <p className="f-display text-5xl font-semibold opacity-15" style={{ color: accentColor }}>
+              {categoryDisplayName[article.lux_category]?.split(" ")[0].toUpperCase() ?? "DESILO"}
+            </p>
+          </motion.div>
+        )}
       </div>
 
       <div className="p-5">

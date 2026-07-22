@@ -452,6 +452,35 @@ export default function ArticleDetail() {
         </div>
       </div>
 
+      {/* ── Cover Image ── */}
+      {article.coverImage && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.35 }}
+          className="max-w-4xl mx-auto px-6 lg:px-8 -mt-8 mb-12">
+          <div className="relative aspect-[16/9] rounded-lg overflow-hidden border"
+            style={{ 
+              background: C.navyCard,
+              borderColor: C.border,
+            }}>
+            <img 
+              src={article.coverImage} 
+              alt={article.coverImageAlt || article.title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+            {article.coverImageAlt && (
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-4 py-3">
+                <p className="text-xs f-mono text-white/80">
+                  {article.coverImageAlt}
+                </p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+
       {/* ── Body ── */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
