@@ -328,7 +328,7 @@ export default function ArticleDetail() {
       <div style={{ background: C.navy, minHeight: "100vh" }}>
         <style>{fontStyle}</style>
         <Navigation />
-        <div className="max-w-3xl mx-auto px-6 py-32 text-center">
+        <div className="mx-auto px-6 py-32 text-center" style={{ maxWidth: "75rem" }}>
           <p className="f-mono text-lg" style={{ color: C.muted }}>Loading...</p>
         </div>
       </div>
@@ -340,7 +340,7 @@ export default function ArticleDetail() {
       <div style={{ background: C.navy, minHeight: "100vh" }}>
         <style>{fontStyle}</style>
         <Navigation />
-        <div className="max-w-3xl mx-auto px-6 py-32 text-center">
+        <div className="mx-auto px-6 py-32 text-center" style={{ maxWidth: "75rem" }}>
           <p className="f-mono text-lg mb-6" style={{ color: C.muted }}>Article not found.</p>
           <button onClick={() => navigate("/news")} className="flex items-center gap-2 mx-auto text-sm"
             style={{ color: C.orange }}>
@@ -380,7 +380,7 @@ export default function ArticleDetail() {
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: `radial-gradient(ellipse 60% 50% at 50% 0%, ${accentColor}18 0%, transparent 70%)` }} />
 
-        <div className="relative z-10 max-w-3xl mx-auto px-6 lg:px-8 pt-12 pb-12">
+        <div className="relative z-10 mx-auto px-6 lg:px-8 pt-12 pb-12" style={{ maxWidth: "75rem" }}>
           {/* Breadcrumb */}
           <motion.button
             initial={{ opacity: 0, x: -12 }}
@@ -458,7 +458,7 @@ export default function ArticleDetail() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.35 }}
-          className="max-w-4xl mx-auto px-6 lg:px-8 -mt-8 mb-12">
+          className="mx-auto px-6 lg:px-8 -mt-8 mb-12" style={{ maxWidth: "85rem" }}>
           <div className="relative aspect-[16/9] rounded-lg overflow-hidden border"
             style={{ 
               background: C.navyCard,
@@ -486,7 +486,7 @@ export default function ArticleDetail() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.3 }}
-        className="max-w-3xl mx-auto px-6 lg:px-8 pb-16">
+        className="mx-auto px-6 lg:px-8 pb-16" style={{ maxWidth: "75rem" }}>
         <div className="article-body">
           {article.body.map((block, i) => (
             <Block key={i} block={block} />
@@ -495,7 +495,7 @@ export default function ArticleDetail() {
       </motion.div>
 
       {/* ── Author Bio ── */}
-      <div className="max-w-3xl mx-auto px-6 lg:px-8 pb-16">
+      <div className="mx-auto px-6 lg:px-8 pb-16" style={{ maxWidth: "75rem" }}>
         <div className="rounded-sm border p-6 flex gap-4"
           style={{ background: C.navyCard, borderColor: C.border }}>
           <div className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
@@ -515,7 +515,7 @@ export default function ArticleDetail() {
       {/* ── Related ── */}
       {related.length > 0 && (
         <div className="border-t" style={{ borderColor: C.border }}>
-          <div className="max-w-3xl mx-auto px-6 lg:px-8 py-16">
+          <div className="mx-auto px-6 lg:px-8 py-16" style={{ maxWidth: "75rem" }}>
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-lg f-display font-semibold" style={{ color: C.offWhite }}>
                 More in {category.name}

@@ -81,7 +81,7 @@ function PageHeader() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-64 pointer-events-none"
         style={{ background: "radial-gradient(ellipse 50% 40% at 50% 0%, rgba(255,90,31,0.12) 0%, transparent 70%)" }} />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-10 text-center">
+      <div className="relative z-10 mx-auto px-6 lg:px-10 text-center" style={{ maxWidth: "90rem" }}>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
           className="text-xs tracking-[0.2em] uppercase mb-3 f-mono" style={{ color: C.orange }}>
           {t.news.label}
@@ -119,7 +119,7 @@ function FilterBar({ selected, onSelect }: { selected: string; onSelect: (cat: s
 
   return (
     <div className="sticky top-16 z-40 border-b" style={{ background: "rgba(6,8,26,0.95)", backdropFilter: "blur(16px)", borderColor: C.border }}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-4 flex items-center justify-between gap-4">
+      <div className="mx-auto px-6 lg:px-10 py-4 flex items-center justify-between gap-4" style={{ maxWidth: "90rem" }}>
         <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
           {allCategoryLabels.map(cat => (
             <button key={cat} onClick={() => onSelect(cat)}
@@ -317,7 +317,7 @@ function FeaturedSection({ articles }: { articles: Article[] }) {
 
   return (
     <section className="relative py-16" style={{ background: C.navy }}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+      <div className="mx-auto px-6 lg:px-10" style={{ maxWidth: "90rem" }}>
         <div className="flex items-center gap-2 mb-10">
           <Pin size={16} style={{ color: C.orange }} />
           <h2 className="text-sm f-mono uppercase tracking-wider" style={{ color: C.orange }}>{t.news.featured}</h2>
@@ -367,7 +367,7 @@ function LatestGrid({
 
   return (
     <section className="relative py-16" style={{ background: C.navy }}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+      <div className="mx-auto px-6 lg:px-10" style={{ maxWidth: "90rem" }}>
         <h2 className="text-2xl f-display font-semibold mb-10" style={{ color: C.offWhite }}>
           {t.news.allArticles}
         </h2>
