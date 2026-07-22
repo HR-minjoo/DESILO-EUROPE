@@ -258,7 +258,10 @@ function Nav() {
     return () => window.removeEventListener("scroll", h);
   }, []);
 
-  const goHome = () => { navigate("/"); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const goHome = () => { 
+    window.scrollTo(0, 0);
+    navigate("/"); 
+  };
 
   return (
     <nav className="sticky top-0 z-40 transition-all duration-500"
@@ -269,12 +272,12 @@ function Nav() {
       }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-2 flex items-center justify-between gap-8" style={{ minHeight: "4rem" }}>
         <button onClick={goHome} className="flex items-center flex-shrink-0">
-          <ImageWithFallback src={frame3Logo} alt="DESILO Europe" className="w-auto object-contain" style={{ height: "3.75rem" }} />
+          <ImageWithFallback src={frame3Logo} alt="DESILO Europe" className="w-auto object-contain" style={{ height: "4rem" }} />
         </button>
         <div className="hidden md:flex items-center gap-7 text-sm" style={{ color: C.muted }}>
           <button onClick={goHome} className="hover:text-white transition-colors">{t.nav.home}</button>
           <button className="text-white transition-colors">{t.nav.product}</button>
-          <button onClick={() => navigate("/news")} className="hover:text-white transition-colors">{t.nav.news}</button>
+          <button onClick={() => { window.scrollTo(0, 0); navigate("/news"); }} className="hover:text-white transition-colors">{t.nav.news}</button>
         </div>
         <div className="flex items-center gap-3">
           <LangToggle />
@@ -297,7 +300,7 @@ function Nav() {
             style={{ background: "rgba(6,8,26,0.97)", borderTop: `1px solid ${C.border}` }}>
             <button onClick={goHome} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.home}</button>
             <button className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.product}</button>
-            <button onClick={() => { setOpen(false); navigate("/news"); }} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.news}</button>
+            <button onClick={() => { setOpen(false); window.scrollTo(0, 0); navigate("/news"); }} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.news}</button>
             <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer"
               className="inline-flex justify-center items-center py-2.5 text-sm font-medium rounded-sm"
               style={{ background: C.orange, color: "#fff" }}>{t.nav.cta}</a>

@@ -127,18 +127,18 @@ function Nav() {
   return (
     <nav className="sticky top-0 z-40 transition-all duration-500"
       style={{
-        background: solid ? "rgba(6,8,26,0.92)" : "transparent",
-        backdropFilter: solid ? "blur(20px)" : "none",
-        borderBottom: solid ? `1px solid ${C.border}` : "1px solid transparent",
+        background: solid ? "rgba(6,8,26,0.92)" : "rgba(6,8,26,0.70)",
+        backdropFilter: "blur(20px)",
+        borderBottom: `1px solid ${C.border}`,
       }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-2 flex items-center justify-between gap-8" style={{ minHeight: "4rem" }}>
-        <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex items-center flex-shrink-0">
-          <ImageWithFallback src={frame3Logo} alt="DESILO Europe" className="w-auto object-contain" style={{ height: "4.125rem" }} />
+        <button onClick={() => window.scrollTo(0, 0)} className="flex items-center flex-shrink-0">
+          <ImageWithFallback src={frame3Logo} alt="DESILO Europe" className="w-auto object-contain" style={{ height: "4rem" }} />
         </button>
         <div className="hidden md:flex items-center gap-7 text-sm" style={{ color: C.muted }}>
           <button onClick={() => go("hero")} className="hover:text-white transition-colors">{t.nav.home}</button>
-          <button onClick={() => navigate("/product")} className="hover:text-white transition-colors">{t.nav.product}</button>
-          <button onClick={() => navigate("/news")} className="hover:text-white transition-colors">{t.nav.news}</button>
+          <button onClick={() => { window.scrollTo(0, 0); navigate("/product"); }} className="hover:text-white transition-colors">{t.nav.product}</button>
+          <button onClick={() => { window.scrollTo(0, 0); navigate("/news"); }} className="hover:text-white transition-colors">{t.nav.news}</button>
         </div>
         <div className="flex items-center gap-3">
           <LangToggle />
@@ -160,8 +160,8 @@ function Nav() {
             className="md:hidden px-6 pb-5 pt-2 flex flex-col gap-4"
             style={{ background: "rgba(6,8,26,0.97)", borderTop: `1px solid ${C.border}` }}>
             <button onClick={() => go("hero")} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.home}</button>
-            <button onClick={() => { setOpen(false); navigate("/product"); }} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.product}</button>
-            <button onClick={() => { setOpen(false); navigate("/news"); }} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.news}</button>
+            <button onClick={() => { setOpen(false); window.scrollTo(0, 0); navigate("/product"); }} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.product}</button>
+            <button onClick={() => { setOpen(false); window.scrollTo(0, 0); navigate("/news"); }} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.news}</button>
             <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer" className="inline-flex justify-center items-center py-2.5 text-sm font-medium rounded-sm"
               style={{ background: C.orange, color: "#fff" }}>{t.nav.cta}</a>
           </motion.div>
@@ -286,7 +286,7 @@ function Hero() {
             {t.hero.microBase}
             <span style={{
               display: "inline-block", position: "relative", overflow: "hidden",
-              height: "1.35em", minWidth: "13ch", verticalAlign: "bottom",
+              height: "1.35em", minWidth: "17ch", verticalAlign: "bottom",
               textAlign: "center",
             }}>
               <AnimatePresence mode="wait">
@@ -368,6 +368,8 @@ const probTlNodes = [
 ];
 
 function ProblemStatic() {
+  const { lang } = useLang();
+  const t = T[lang];
   return (
     <section id="problem" className="relative py-28 lg:py-40" style={{ background: C.navy }}>
       <div className="absolute top-0 left-0 right-0 h-px"
@@ -393,7 +395,7 @@ function ProblemStatic() {
             <div key={i} style={{ borderRight: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: "1.75rem 2rem" }}>
               <div className="f-display font-bold tabular-nums leading-none mb-4"
                 style={{ fontSize: "clamp(3rem, 5vw, 4.8rem)", color: C.orange }}>{s.v}</div>
-              <p className="text-sm leading-relaxed f-mono mb-1" style={{ color: C.muted }}>{s.cap}</p>
+              <p className="leading-relaxed f-mono mb-1" style={{ fontSize: "0.9625rem", color: C.muted }}>{s.cap}</p>
               <p className="text-xs f-mono" style={{ color: C.dim }}>{s.src}</p>
             </div>
           ))}
@@ -415,7 +417,7 @@ function ProblemStatic() {
                 </div>
                 <span className="text-xs f-mono mb-1.5" style={{ color: isAmlr ? "rgba(255,90,31,0.7)" : C.dim }}>{n.year}</span>
                 <p className="text-sm font-semibold mb-1" style={{ color: isAmlr ? C.orange : "rgba(242,238,232,0.6)" }}>{n.label}</p>
-                <p className="text-xs mb-3" style={{ color: C.muted }}>{n.desc}</p>
+                <p className="mb-3" style={{ fontSize: "0.825rem", color: C.muted }}>{n.desc}</p>
                 {/* Barrier blocks */}
                 <div style={{ display: "flex", flexDirection: "column-reverse", gap: "2px", width: 36, marginBottom: "0.3rem" }}>
                   {Array.from({ length: 5 }, (_, bIdx) => (
@@ -597,18 +599,18 @@ function Problem() {
   ];
 
   return (
-    <div ref={outer} id="problem" style={{ position: "relative", height: "420vh" }}>
+    <div ref={outer} id="problem" style={{ position: "relative", height: "360vh" }}>
       <div style={{ position: "sticky", top: 0, height: "100vh", background: C.navy, overflow: "hidden" }}>
         <div className="absolute top-0 left-0 right-0 h-px"
           style={{ background: "linear-gradient(90deg, transparent 10%, rgba(255,90,31,0.25) 50%, transparent 90%)" }} />
 
         <div className="max-w-7xl mx-auto px-6 lg:px-10"
-          style={{ height: "100%", display: "flex", flexDirection: "column", paddingTop: "calc(64px + 5vh)", paddingBottom: "6vh" }}>
+          style={{ height: "100%", display: "flex", flexDirection: "column", paddingTop: "calc(64px + 2vh)", paddingBottom: "3vh" }}>
 
           {/* ── Headline ── */}
           <div style={{ opacity: headOp, flexShrink: 0 }}>
-            <p className="text-xs tracking-[0.22em] uppercase f-mono mb-4" style={{ color: C.orange }}>{tp.label}</p>
-            <h2 className="f-display font-semibold leading-tight mb-4"
+            <p className="text-xs tracking-[0.22em] uppercase f-mono mb-3" style={{ color: C.orange }}>{tp.label}</p>
+            <h2 className="f-display font-semibold leading-tight mb-3"
               style={{ fontSize: "clamp(1.9rem, 3.8vw, 3.2rem)", color: C.offWhite, maxWidth: "22ch" }}>
               {tp.h2}
             </h2>
@@ -619,7 +621,7 @@ function Problem() {
           </div>
 
           {/* ── Content area: two absolute layers share the same space ── */}
-          <div className="flex-1 mt-5" style={{ position: "relative" }}>
+          <div className="flex-1 mt-4" style={{ position: "relative" }}>
 
             {/* Layer A — Stats + Challenge (p 0→0.46) */}
             <div style={{
@@ -662,10 +664,10 @@ function Problem() {
               }}>
                 <div style={{ padding: "0.75rem 1.25rem", borderLeft: `2px solid rgba(255,90,31,0.28)` }}>
                   <p className="f-display italic font-semibold leading-tight mb-2"
-                    style={{ fontSize: "clamp(1rem, 1.6vw, 1.35rem)", color: C.offWhite }}>
+                    style={{ fontSize: "clamp(1.1rem, 1.76vw, 1.485rem)", color: C.offWhite }}>
                     {`"${tp.challengeTitle}"`}
                   </p>
-                  <p style={{ fontSize: "clamp(0.95rem, 1.1vw, 1.05rem)", lineHeight: 1.75, color: "rgba(242,238,232,0.55)", whiteSpace: "pre-line" }}>
+                  <p style={{ fontSize: "clamp(1.045rem, 1.21vw, 1.155rem)", lineHeight: 1.75, color: "rgba(242,238,232,0.55)", whiteSpace: "pre-line" }}>
                     {tp.challengeBody}
                   </p>
                 </div>
@@ -739,8 +741,8 @@ function Problem() {
                           style={{ color: active ? (isAmlr ? C.orange : "rgba(242,238,232,0.88)") : "rgba(242,238,232,0.22)" }}>
                           {n.label}
                         </p>
-                        <p className="text-xs leading-snug"
-                          style={{ color: active ? C.muted : "transparent", maxWidth: "26ch" }}>
+                        <p className="leading-snug"
+                          style={{ fontSize: "0.825rem", color: active ? C.muted : "transparent", maxWidth: "26ch" }}>
                           {n.desc}
                         </p>
                         {/* Badge space pre-reserved for all nodes (height fixed) — prevents CLS */}
@@ -759,9 +761,9 @@ function Problem() {
               </div>
 
               {/* Bridge quote */}
-              <div style={{ marginTop: "1.5rem", opacity: bridgeOp }}>
+              <div style={{ marginTop: "1rem", opacity: bridgeOp }}>
                 <p className="f-display italic"
-                  style={{ fontSize: "clamp(1.15rem, 1.75vw, 1.56rem)", lineHeight: 1.55 }}>
+                  style={{ fontSize: "clamp(1.15rem, 1.75vw, 1.56rem)", lineHeight: 1.65, maxWidth: "42ch" }}>
                   <span style={{ color: "rgba(242,238,232,0.85)" }}>{t.bridge.line1}</span>
                   <br />
                   <span style={{ color: C.orange }}>{t.bridge.line2}</span>

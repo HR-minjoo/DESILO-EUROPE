@@ -78,33 +78,44 @@ function LangToggle() {
 // ─── Navigation ───────────────────────────────────────────────────────────────
 function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [solid, setSolid] = useState(false);
   const navigate = useNavigate();
   const { lang } = useLang();
   const t = T[lang];
 
+  useEffect(() => {
+    const h = () => setSolid(window.scrollY > 60);
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
+  }, []);
+
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b" style={{ background: "rgba(6,8,26,0.92)", backdropFilter: "blur(12px)", borderColor: C.border }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-2 flex items-center justify-between relative" style={{ minHeight: "4rem" }}>
-          <button onClick={() => navigate("/")} className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0">
-            <ImageWithFallback src={frame3Logo} alt="DESILO Europe" className="w-auto object-contain" style={{ height: "3.75rem" }} />
+      <nav className="sticky top-0 z-40 transition-all duration-500" style={{ 
+        background: solid ? "rgba(6,8,26,0.92)" : "rgba(6,8,26,0.70)", 
+        backdropFilter: "blur(20px)", 
+        borderBottom: `1px solid ${C.border}` 
+      }}>
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-2 flex items-center justify-between gap-8" style={{ minHeight: "4rem" }}>
+          <button onClick={() => { window.scrollTo(0, 0); navigate("/"); }} className="flex items-center flex-shrink-0">
+            <ImageWithFallback src={frame3Logo} alt="DESILO Europe" className="w-auto object-contain" style={{ height: "4rem" }} />
           </button>
-          <div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-            <button onClick={() => navigate("/")} className="text-sm hover:opacity-100 transition-opacity" style={{ color: C.muted }}>{t.nav.home}</button>
-            <button onClick={() => navigate("/product")} className="text-sm hover:opacity-100 transition-opacity" style={{ color: C.muted }}>{t.nav.product}</button>
-            <button onClick={() => navigate("/news")} className="text-sm transition-opacity" style={{ color: C.orange }}>{t.nav.news}</button>
+          <div className="hidden md:flex items-center gap-7 text-sm" style={{ color: C.muted }}>
+            <button onClick={() => { window.scrollTo(0, 0); navigate("/"); }} className="hover:text-white transition-colors">{t.nav.home}</button>
+            <button onClick={() => { window.scrollTo(0, 0); navigate("/product"); }} className="hover:text-white transition-colors">{t.nav.product}</button>
+            <button onClick={() => navigate("/news")} className="text-white transition-colors" style={{ color: C.orange }}>{t.nav.news}</button>
           </div>
           <div className="flex items-center gap-3">
             <LangToggle />
             <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-sm transition-all duration-200"
               style={{ background: C.orange, color: "#fff" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#FF7040")}
+              onMouseEnter={e => (e.currentTarget.style.background = C.orangeLight)}
               onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
               {t.nav.cta}
             </a>
-            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden" style={{ color: C.offWhite }}>
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden p-1.5" style={{ color: C.offWhite }}>
+              {menuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
@@ -112,13 +123,14 @@ function Nav() {
 
       <AnimatePresence>
         {menuOpen && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-x-0 top-16 z-40 lg:hidden border-b" style={{ background: C.navy, borderColor: C.border }}>
-            <div className="p-6 flex flex-col gap-4">
-              <button onClick={() => { navigate("/"); setMenuOpen(false); }} className="text-left text-base" style={{ color: C.muted }}>{t.nav.home}</button>
-              <button onClick={() => { navigate("/product"); setMenuOpen(false); }} className="text-left text-base" style={{ color: C.muted }}>{t.nav.product}</button>
-              <button onClick={() => { navigate("/news"); setMenuOpen(false); }} className="text-left text-base" style={{ color: C.orange }}>{t.nav.news}</button>
-            </div>
+          <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+            className="md:hidden px-6 pb-5 pt-2 flex flex-col gap-4"
+            style={{ background: "rgba(6,8,26,0.97)", borderTop: `1px solid ${C.border}` }}>
+            <button onClick={() => { window.scrollTo(0, 0); navigate("/"); setMenuOpen(false); }} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.home}</button>
+            <button onClick={() => { window.scrollTo(0, 0); navigate("/product"); setMenuOpen(false); }} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.product}</button>
+            <button onClick={() => { navigate("/news"); setMenuOpen(false); }} className="text-left py-1.5 text-sm" style={{ color: C.orange }}>{t.nav.news}</button>
+            <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer" className="inline-flex justify-center items-center py-2.5 text-sm font-medium rounded-sm"
+              style={{ background: C.orange, color: "#fff" }}>{t.nav.cta}</a>
           </motion.div>
         )}
       </AnimatePresence>

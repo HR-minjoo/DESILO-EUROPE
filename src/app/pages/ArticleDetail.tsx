@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SEO } from "@/app/components/SEO";
 import { motion } from "motion/react";
 import { X, Menu, ArrowLeft, Clock, ArrowRight } from "lucide-react";
@@ -6,14 +6,14 @@ import { useNavigate, useParams } from "react-router";
 import frame3Logo from "@/imports/Frame_7.png";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import {
-  articles,
-  articleBySlug,
   authorById,
   categoryBySlug,
   categoryColorMap,
   categoryDisplayName,
   type BodyBlock,
+  type Article,
 } from "@/app/data/news";
+import { fetchLuxArticles } from "@/app/lib/luxArticles";
 
 // ─── Tokens ───────────────────────────────────────────────────────────────────
 const C = {
@@ -121,7 +121,7 @@ function Block({ block }: { block: BodyBlock }) {
 }
 
 // ─── Related Card ──────────────────────────────────────────────────────────────
-function RelatedCard({ article }: { article: (typeof articles)[0] }) {
+function RelatedCard({ article }: { article: Article }) {
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
   const accentColor = categoryColorMap[article.lux_category] ?? C.orange;
@@ -154,7 +154,48 @@ function RelatedCard({ article }: { article: (typeof articles)[0] }) {
 export default function ArticleDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const article = slug ? articleBySlug(slug) : undefined;
+  const [article, setArticle] = useState<Article | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [allArticles, setAllArticles] = useState<Article[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadArticle() {
+      setLoading(true);
+      const result = await fetchLuxArticles();
+      
+      if (cancelled) return;
+
+      if (result.status === "success") {
+        setAllArticles(result.articles);
+        const foundArticle = result.articles.find(a => a.slug === slug);
+        setArticle(foundArticle || null);
+      } else {
+        setArticle(null);
+      }
+      
+      setLoading(false);
+    }
+
+    loadArticle();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div style={{ background: C.navy, minHeight: "100vh" }}>
+        <style>{fontStyle}</style>
+        <Nav />
+        <div className="max-w-3xl mx-auto px-6 py-32 text-center">
+          <p className="f-mono text-lg" style={{ color: C.muted }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!article) {
     return (
@@ -176,7 +217,7 @@ export default function ArticleDetail() {
   const category = categoryBySlug(article.lux_category);
   const accentColor = categoryColorMap[article.lux_category] ?? C.orange;
 
-  const related = articles
+  const related = allArticles
     .filter(a => a.id !== article.id && a.lux_category === article.lux_category)
     .slice(0, 3);
 
