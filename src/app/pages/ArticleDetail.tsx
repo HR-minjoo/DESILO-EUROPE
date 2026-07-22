@@ -14,6 +14,7 @@ import {
   type Article,
 } from "@/app/data/news";
 import { fetchLuxArticles } from "@/app/lib/luxArticles";
+import { Navigation } from "@/app/components/Navigation";
 
 // ─── Tokens ───────────────────────────────────────────────────────────────────
 const C = {
@@ -34,8 +35,17 @@ const fontStyle = `
     --font-body: 'DM Sans', system-ui, sans-serif;
     --font-mono: 'DM Mono', monospace;
   }
-  html { scroll-behavior: smooth; }
-  body { font-family: var(--font-body); background: ${C.navy}; color: ${C.offWhite}; }
+  html { 
+    scroll-behavior: smooth; 
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
+  }
+  body { 
+    font-family: var(--font-body); 
+    background: ${C.navy}; 
+    color: ${C.offWhite};
+    overflow-x: hidden;
+  }
   .f-display { font-family: var(--font-display); }
   .f-mono { font-family: var(--font-mono); }
   .article-body p { line-height: 1.85; margin-bottom: 1.4em; color: rgba(242,238,232,0.82); font-size: clamp(1rem, 1.15vw, 1.125rem); }
@@ -48,36 +58,6 @@ const fontStyle = `
 `;
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
-function Nav() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
-
-  return (
-    <nav className="sticky top-0 z-50 border-b" style={{ background: "rgba(6,8,26,0.92)", backdropFilter: "blur(12px)", borderColor: C.border }}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-2 flex items-center justify-between relative" style={{ minHeight: "4rem" }}>
-        <button onClick={() => navigate("/")} className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0">
-          <ImageWithFallback src={frame3Logo} alt="DESILO Europe" className="w-auto object-contain" style={{ height: "3.75rem" }} />
-        </button>
-        <div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-          <button onClick={() => navigate("/")} className="text-sm hover:opacity-100 transition-opacity" style={{ color: C.muted }}>Home</button>
-          <button onClick={() => navigate("/product")} className="text-sm hover:opacity-100 transition-opacity" style={{ color: C.muted }}>Solution</button>
-          <button onClick={() => navigate("/news")} className="text-sm transition-opacity" style={{ color: C.orange }}>News</button>
-        </div>
-        <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden" style={{ color: C.offWhite }}>
-          {menuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-      {menuOpen && (
-        <div className="lg:hidden border-t p-6 flex flex-col gap-4" style={{ background: C.navy, borderColor: C.border }}>
-          <button onClick={() => { navigate("/"); setMenuOpen(false); }} className="text-left text-base" style={{ color: C.muted }}>Home</button>
-          <button onClick={() => { navigate("/product"); setMenuOpen(false); }} className="text-left text-base" style={{ color: C.muted }}>Solution</button>
-          <button onClick={() => { navigate("/news"); setMenuOpen(false); }} className="text-left text-base" style={{ color: C.orange }}>News</button>
-        </div>
-      )}
-    </nav>
-  );
-}
-
 // ─── Body Block Renderer ──────────────────────────────────────────────────────
 function Block({ block }: { block: BodyBlock }) {
   if (block.type === "p") {
@@ -189,7 +169,7 @@ export default function ArticleDetail() {
     return (
       <div style={{ background: C.navy, minHeight: "100vh" }}>
         <style>{fontStyle}</style>
-        <Nav />
+        <Navigation />
         <div className="max-w-3xl mx-auto px-6 py-32 text-center">
           <p className="f-mono text-lg" style={{ color: C.muted }}>Loading...</p>
         </div>
@@ -201,7 +181,7 @@ export default function ArticleDetail() {
     return (
       <div style={{ background: C.navy, minHeight: "100vh" }}>
         <style>{fontStyle}</style>
-        <Nav />
+        <Navigation />
         <div className="max-w-3xl mx-auto px-6 py-32 text-center">
           <p className="f-mono text-lg mb-6" style={{ color: C.muted }}>Article not found.</p>
           <button onClick={() => navigate("/news")} className="flex items-center gap-2 mx-auto text-sm"
@@ -233,7 +213,7 @@ export default function ArticleDetail() {
         canonical={`/news/${article.slug}`}
       />
       <style>{fontStyle}</style>
-      <Nav />
+      <Navigation />
 
       {/* ── Hero ── */}
       <div className="relative overflow-hidden"

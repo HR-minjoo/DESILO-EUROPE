@@ -10,6 +10,7 @@ import frame3Logo from "@/imports/Frame_7.png";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import { useLang } from "@/app/context/LanguageContext";
 import { T } from "@/app/data/translations";
+import { Navigation } from "@/app/components/Navigation";
 
 // ─── Tokens ───────────────────────────────────────────────────────────────────
 const C = {
@@ -31,8 +32,17 @@ const fontStyle = `
     --font-body: 'DM Sans', system-ui, sans-serif;
     --font-mono: 'DM Mono', monospace;
   }
-  html { scroll-behavior: smooth; }
-  body { font-family: var(--font-body); background: ${C.navy}; color: ${C.offWhite}; }
+  html { 
+    scroll-behavior: smooth; 
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
+  }
+  body { 
+    font-family: var(--font-body); 
+    background: ${C.navy}; 
+    color: ${C.offWhite};
+    overflow-x: hidden;
+  }
   .f-display { font-family: var(--font-display); }
   .f-mono { font-family: var(--font-mono); }
 
@@ -231,86 +241,6 @@ function ProductBackground() {
 }
 
 // ─── Lang Toggle ──────────────────────────────────────────────────────────────
-function LangToggle() {
-  const { lang, setLang } = useLang();
-  return (
-    <div className="hidden sm:flex items-center f-mono text-xs" style={{ color: C.dim, gap: "2px" }}>
-      <button onClick={() => setLang("en")} className="px-1.5 py-0.5 transition-colors"
-        style={{ color: lang === "en" ? C.orange : C.dim, fontWeight: lang === "en" ? 500 : 400 }}>EN</button>
-      <span style={{ color: C.dim, opacity: 0.4 }}>/</span>
-      <button onClick={() => setLang("fr")} className="px-1.5 py-0.5 transition-colors"
-        style={{ color: lang === "fr" ? C.orange : C.dim, fontWeight: lang === "fr" ? 500 : 400 }}>FR</button>
-    </div>
-  );
-}
-
-// ─── Nav ──────────────────────────────────────────────────────────────────────
-function Nav() {
-  const navigate = useNavigate();
-  const [solid, setSolid] = useState(false);
-  const [open, setOpen] = useState(false);
-  const { lang } = useLang();
-  const t = T[lang];
-
-  useEffect(() => {
-    const h = () => setSolid(window.scrollY > 60);
-    window.addEventListener("scroll", h, { passive: true });
-    return () => window.removeEventListener("scroll", h);
-  }, []);
-
-  const goHome = () => { 
-    window.scrollTo(0, 0);
-    navigate("/"); 
-  };
-
-  return (
-    <nav className="sticky top-0 z-40 transition-all duration-500"
-      style={{
-        background: solid ? "rgba(6,8,26,0.92)" : "rgba(6,8,26,0.70)",
-        backdropFilter: "blur(20px)",
-        borderBottom: `1px solid ${C.border}`,
-      }}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-2 flex items-center justify-between gap-8" style={{ minHeight: "4rem" }}>
-        <button onClick={goHome} className="flex items-center flex-shrink-0">
-          <ImageWithFallback src={frame3Logo} alt="DESILO Europe" className="w-auto object-contain" style={{ height: "4rem" }} />
-        </button>
-        <div className="hidden md:flex items-center gap-7 text-sm" style={{ color: C.muted }}>
-          <button onClick={goHome} className="hover:text-white transition-colors">{t.nav.home}</button>
-          <button className="text-white transition-colors">{t.nav.product}</button>
-          <button onClick={() => { window.scrollTo(0, 0); navigate("/news"); }} className="hover:text-white transition-colors">{t.nav.news}</button>
-        </div>
-        <div className="flex items-center gap-3">
-          <LangToggle />
-          <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-sm transition-all duration-200"
-            style={{ background: C.orange, color: "#fff" }}
-            onMouseEnter={e => (e.currentTarget.style.background = C.orangeLight)}
-            onMouseLeave={e => (e.currentTarget.style.background = C.orange)}>
-            {t.nav.cta}
-          </a>
-          <button className="md:hidden p-1.5" onClick={() => setOpen(v => !v)} style={{ color: C.offWhite }}>
-            {open ? <X size={18} /> : <Menu size={18} />}
-          </button>
-        </div>
-      </div>
-      <AnimatePresence>
-        {open && (
-          <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
-            className="md:hidden px-6 pb-5 pt-2 flex flex-col gap-4"
-            style={{ background: "rgba(6,8,26,0.97)", borderTop: `1px solid ${C.border}` }}>
-            <button onClick={goHome} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.home}</button>
-            <button className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.product}</button>
-            <button onClick={() => { setOpen(false); window.scrollTo(0, 0); navigate("/news"); }} className="text-left py-1.5 text-sm" style={{ color: C.offWhite }}>{t.nav.news}</button>
-            <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer"
-              className="inline-flex justify-center items-center py-2.5 text-sm font-medium rounded-sm"
-              style={{ background: C.orange, color: "#fff" }}>{t.nav.cta}</a>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
-  );
-}
-
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
   const [litIdx, setLitIdx] = useState(0);
@@ -492,7 +422,7 @@ export default function Product() {
       <ProductBackground />
 
       <div style={{ position: "relative", zIndex: 1 }}>
-        <Nav />
+        <Navigation />
         <Hero />
 
         <main className="relative">

@@ -42,6 +42,7 @@ const STRAPI_ARTICLE_SCALAR_FIELDS = [
   "title",
   "slug",
   "excerpt",
+  "body",
   "coverImageAlt",
   "readingTime",
   "isFeatured",
