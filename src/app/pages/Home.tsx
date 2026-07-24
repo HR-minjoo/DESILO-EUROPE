@@ -672,7 +672,7 @@ function ProblemBridge() {
       <div className="max-w-7xl mx-auto px-6 lg:px-10 text-center">
         <motion.p
           className="f-display italic font-semibold leading-tight inline-block"
-          style={{ fontSize: "clamp(2.8rem, 5.2vw, 4.6rem)", whiteSpace: "nowrap" }}
+          style={{ fontSize: "clamp(2.8rem, 5.2vw, 4.6rem)", maxWidth: "30ch" }}
           initial={{ opacity: 0, y: 28 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
