@@ -458,7 +458,7 @@ function Problem() {
     
     return () => {
       observer.disconnect();
-      cancelAnimationFrame(animFrameRef.current);
+      // Don't cancel animation - let it complete even if scrolling past quickly
     };
   }, [prefersReduced, statsTriggered]);
 
@@ -501,7 +501,7 @@ function Problem() {
     
     return () => {
       observer.disconnect();
-      cancelAnimationFrame(animFrameRef.current);
+      // Don't cancel animation - let it complete even if scrolling past quickly
     };
   }, [prefersReduced, timelineTriggered]);
 
