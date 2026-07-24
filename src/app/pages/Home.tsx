@@ -1080,6 +1080,10 @@ function Footer() {
               DESILO Europe S.à r.l.<br />
               9 Rue du Laboratoire, 1911 Gare Luxembourg
             </p>
+            <p className="text-sm leading-relaxed mt-4" style={{ color: C.dim }}>
+              DESILO KOREA<br />
+              138, Seoun-ro, Seocho-gu, Seoul, Republic of Korea
+            </p>
           </div>
           <div>
             <p className="text-xs f-mono tracking-[0.15em] uppercase mb-3" style={{ color: C.dim }}>Contact</p>
@@ -1092,20 +1096,22 @@ function Footer() {
           </div>
           <div>
             <p className="text-xs f-mono tracking-[0.15em] uppercase mb-3" style={{ color: C.dim }}>Follow</p>
-            <a href="https://www.linkedin.com/company/desilo-europe/" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm transition-colors"
-              style={{ color: C.muted }}
-              onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
-              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
-              <Linkedin size={13} /> LinkedIn
-            </a>
-            <a href="https://desilo.ai" target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm transition-colors"
-              style={{ color: C.muted }}
-              onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
-              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
-              DESILO KOREA
-            </a>
+            <div className="flex flex-col gap-2">
+              <a href="https://www.linkedin.com/company/desilo-europe/" target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm transition-colors"
+                style={{ color: C.muted }}
+                onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
+                onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+                <Linkedin size={13} /> LinkedIn DESILO EUROPE
+              </a>
+              <a href="https://www.linkedin.com/company/desilo/" target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm transition-colors"
+                style={{ color: C.muted }}
+                onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
+                onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+                <Linkedin size={13} /> LinkedIn DESILO KOREA
+              </a>
+            </div>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row justify-between gap-2 pt-6" style={{ borderTop: `1px solid ${C.border}` }}>
