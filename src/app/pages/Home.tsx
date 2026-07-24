@@ -785,7 +785,10 @@ function Solution() {
             </div>
 
             <button
-              onClick={() => navigate("/product")}
+              onClick={() => {
+                window.scrollTo(0, 0);
+                navigate("/product");
+              }}
               className="inline-flex items-center gap-2.5 px-7 py-3.5 text-sm font-medium transition-all duration-200 tracking-widest"
               style={{ background: C.orange, color: "#fff" }}
               onMouseEnter={e => (e.currentTarget.style.background = C.orangeLight)}
