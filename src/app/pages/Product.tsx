@@ -253,7 +253,7 @@ function Hero() {
   }, []);
 
   return (
-    <section className="relative py-20 lg:py-28 overflow-hidden" style={{ borderBottom: `1px solid ${C.border}` }}>
+    <section id="holmes-logo" className="relative py-20 lg:py-28 overflow-hidden" style={{ borderBottom: `1px solid ${C.border}` }}>
       <div className="relative z-10 max-w-4xl mx-auto px-6 lg:px-10 text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} className="mb-8">

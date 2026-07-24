@@ -389,8 +389,8 @@ function ProblemStatic() {
             );
           })}
         </div>
-        <p className="mt-16 f-display italic leading-relaxed"
-          style={{ fontSize: "clamp(1.4rem, 2.6vw, 2.3rem)", maxWidth: "54ch", paddingLeft: "1.5rem", borderLeft: `2px solid rgba(255,90,31,0.3)`, color: "rgba(242,238,232,0.55)" }}>
+        <p className="mt-16 f-display italic font-semibold leading-tight"
+          style={{ fontSize: "clamp(2.8rem, 5.2vw, 4.6rem)", maxWidth: "54ch", paddingLeft: "1.5rem", borderLeft: `2px solid rgba(255,90,31,0.3)`, color: "rgba(242,238,232,0.55)" }}>
                 {"“Regulation opened the door to collaboration.”"}
           <span style={{ color: C.orange }}>{'Now comes the real challenge: making it work without exposing customer data."'}</span>
         </p>
@@ -608,14 +608,14 @@ function Problem() {
                     ))}
                   </div>
                 </div>
-                {/* Node dot - centered on line */}
+                {/* Node dot - left aligned with text */}
                 <div style={{ 
                   width: 12, height: 12, borderRadius: "50%", 
                   background: active || prefersReduced ? (isAmlr ? C.orange : C.muted) : C.dim, 
                   position: "relative", zIndex: 1,
                   boxShadow: isAmlr && (active || prefersReduced) ? `0 0 ${8 + amlrGlow * 12}px ${C.orange}` : "none",
                   transition: 'all 0.4s ease',
-                  margin: '0 auto',
+                  margin: 0,
                   transform: 'translateY(-6px)'
                 }} />
                 <div style={{ paddingTop: "0.5rem" }}>
@@ -671,8 +671,8 @@ function ProblemBridge() {
     <div ref={ref} style={{ background: C.navy, paddingTop: "10vh", paddingBottom: "12vh" }}>
       <div className="max-w-7xl mx-auto px-6 lg:px-10 text-center">
         <motion.p
-          className="f-display italic leading-tight inline-block"
-          style={{ fontSize: "clamp(1.4rem, 2.6vw, 2.3rem)", whiteSpace: "nowrap" }}
+          className="f-display italic font-semibold leading-tight inline-block"
+          style={{ fontSize: "clamp(2.8rem, 5.2vw, 4.6rem)", whiteSpace: "nowrap" }}
           initial={{ opacity: 0, y: 28 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
@@ -786,8 +786,15 @@ function Solution() {
 
             <button
               onClick={() => {
-                window.scrollTo(0, 0);
-                navigate("/product");
+                // Navigate to Product page with hash
+                navigate("/product#holmes-logo");
+                // Small delay to allow navigation to complete, then scroll to the section
+                setTimeout(() => {
+                  const element = document.getElementById("holmes-logo");
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }, 100);
               }}
               className="inline-flex items-center gap-2.5 px-7 py-3.5 text-sm font-medium transition-all duration-200 tracking-widest"
               style={{ background: C.orange, color: "#fff" }}

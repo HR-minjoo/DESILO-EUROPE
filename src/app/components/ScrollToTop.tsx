@@ -10,8 +10,13 @@ export function ScrollToTop() {
       window.history.scrollRestoration = "manual";
     }
 
-    // Force scroll to top immediately on route change
-    window.scrollTo(0, 0);
+    // Force scroll to top immediately on route change with instant behavior
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    
+    // Additional insurance - use requestAnimationFrame
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    });
   }, [pathname]);
 
   return null;
