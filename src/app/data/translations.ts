@@ -49,7 +49,7 @@ export const T = {
       challengeFor: "For decades, the answer was no.",
       challengeTitle: "Banks wanted to collaborate. Their data had to stay apart.",
       challengeBody:
-        "Customer data was confidential, and sharing it across institutions risked breaching privacy and regulatory obligations.\n\nBanks have been pursuing the same fraudsters—each in the dark.",
+        "Customer data was confidential, and sharing it across institutions risked breaching privacy and regulatory obligations.\nBanks have been pursuing the same fraudsters—each in the dark.",
       tlCaption1: "Once out of bounds.",
       tlCaption2: "Now within reach.",
       nodes: [
@@ -91,7 +91,7 @@ export const T = {
     technology: {
       label: "THE TECHNOLOGY",
       h2: "The Cryptographic Foundation of HOLMES",
-      body: "Built on years of cryptographic research and real-world deployment by our parent company in Korea.",
+      body: "Built on years of cryptographic research and real-world deployment by our parent company DESILO KOREA.",
       capabilities: [
         "5th-Generation FHE Scheme",
         "Privacy-Preserving Machine Learning",
@@ -242,7 +242,7 @@ export const T = {
       challengeFor: "",
       challengeTitle: "Les banques voulaient collaborer mais leurs données ne pouvaient pas être partagées.",
       challengeBody:
-        "Les données clients étaient confidentielles, et leur partage entre établissements risquait de violer des obligations de confidentialité et réglementaires.\n\nLes banques poursuivent les mêmes fraudeurs, chacune dans l’ignorance de l’autre.",
+        "Les données clients étaient confidentielles, et leur partage entre établissements risquait de violer des obligations de confidentialité et réglementaires.\nLes banques poursuivent les mêmes fraudeurs, chacune dans l’ignorance de l’autre.",
       tlCaption1: "Autrefois hors de portée.",
       tlCaption2: "Désormais à portée de main.",
       nodes: [
@@ -284,7 +284,7 @@ export const T = {
     technology: {
       label: "LA TECHNOLOGIE",
       h2: "Les fondations cryptographiques de HOLMES",
-      body: "Fruit de plusieurs années de recherche cryptographique et de déploiements concrets par notre maison mère en Corée.",
+      body: "Fruit de plusieurs années de recherche cryptographique et de déploiements concrets par notre maison mère DESILO KOREA.",
       capabilities: [
         "Schéma FHE de 5ᵉ génération",
         "Apprentissage automatique préservant la confidentialité",

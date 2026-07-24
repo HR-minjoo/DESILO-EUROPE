@@ -390,7 +390,7 @@ function ProblemStatic() {
           })}
         </div>
         <p className="mt-16 f-display italic leading-relaxed"
-          style={{ fontSize: "clamp(1.05rem, 1.7vw, 1.35rem)", maxWidth: "54ch", paddingLeft: "1.5rem", borderLeft: `2px solid rgba(255,90,31,0.3)`, color: "rgba(242,238,232,0.55)" }}>
+          style={{ fontSize: "clamp(1.4rem, 2.6vw, 2.3rem)", maxWidth: "54ch", paddingLeft: "1.5rem", borderLeft: `2px solid rgba(255,90,31,0.3)`, color: "rgba(242,238,232,0.55)" }}>
                 {"“Regulation opened the door to collaboration.”"}
           <span style={{ color: C.orange }}>{'Now comes the real challenge: making it work without exposing customer data."'}</span>
         </p>
@@ -400,338 +400,265 @@ function ProblemStatic() {
 }
 
 function Problem() {
-  const outer = useRef<HTMLDivElement>(null);
-  const p     = useStickyProgress(outer);
   const { lang } = useLang();
-  const t  = T[lang];
+  const t = T[lang];
   const tp = t.problem;
-  const nodes = tp.nodes;
+  
+  const statsRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  
+  // DEFAULT TO FINAL STATE (1) — animations will temporarily reset to 0 when triggered
+  const [countupProgress, setCountupProgress] = useState(1);
+  const [timelineProgress, setTimelineProgress] = useState(1);
+  const [statsTriggered, setStatsTriggered] = useState(false);
+  const [timelineTriggered, setTimelineTriggered] = useState(false);
+  
+  const animFrameRef = useRef<number>(0);
 
-  const [prefersReduced] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
+  const prefersReduced = typeof window !== 'undefined' 
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
+    : false;
 
-  // ── Auto-play state — triggered by scroll, driven by timer ───────────────
-  const [statsVP, setStatsVP] = useState(0); // countup progress 0→1
-  const [tlVP,    setTlVP]    = useState(0); // sweep progress 0→1
-  const countupDone = useRef(false);
-  const sweepDone   = useRef(false);
-  const statsRaf    = useRef<number>(0);
-  const tlRaf       = useRef<number>(0);
-
-  // Countup: fires once when p >= 0.04 (very early entry), plays to completion
+  // Trigger countup when stats scroll into view (once only)
   useEffect(() => {
-    if (p >= 0.04 && !countupDone.current) {
-      countupDone.current = true;
-      const dur = 1300, t0 = Date.now();
-      const tick = () => {
-        const vp = Math.min(1, (Date.now() - t0) / dur);
-        setStatsVP(vp);
-        if (vp < 1) statsRaf.current = requestAnimationFrame(tick);
-      };
-      statsRaf.current = requestAnimationFrame(tick);
-    }
-  }, [p]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (prefersReduced || statsTriggered || !statsRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.15) {
+          setStatsTriggered(true);
+          observer.disconnect();
+          
+          // Start animation from 0
+          let startTime = Date.now();
+          const dur = 1300;
+          
+          const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(1, elapsed / dur);
+            setCountupProgress(progress);
+            
+            if (progress < 1) {
+              animFrameRef.current = requestAnimationFrame(animate);
+            }
+          };
+          
+          // Reset to 0 and start animation immediately
+          setCountupProgress(0);
+          requestAnimationFrame(() => {
+            startTime = Date.now(); // Reset start time
+            animate();
+          });
+        }
+      },
+      { threshold: [0, 0.15, 0.3, 0.5] }
+    );
+    
+    observer.observe(statsRef.current);
+    
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(animFrameRef.current);
+    };
+  }, [prefersReduced, statsTriggered]);
 
-  // Sweep: fires once when p >= 0.42 (timeline is fully visible), plays to completion
+  // Trigger timeline when it scrolls into view (once only)
   useEffect(() => {
-    if (p >= 0.42 && !sweepDone.current) {
-      sweepDone.current = true;
-      const dur = 1700, t0 = Date.now();
-      const tick = () => {
-        const vp = Math.min(1, (Date.now() - t0) / dur);
-        setTlVP(vp);
-        if (vp < 1) tlRaf.current = requestAnimationFrame(tick);
-      };
-      tlRaf.current = requestAnimationFrame(tick);
-    }
-  }, [p]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (prefersReduced || timelineTriggered || !timelineRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.15) {
+          setTimelineTriggered(true);
+          observer.disconnect();
+          
+          // Start animation from 0
+          let startTime = Date.now();
+          const dur = 1700;
+          
+          const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(1, elapsed / dur);
+            setTimelineProgress(progress);
+            
+            if (progress < 1) {
+              animFrameRef.current = requestAnimationFrame(animate);
+            }
+          };
+          
+          // Reset to 0 and start animation immediately
+          setTimelineProgress(0);
+          requestAnimationFrame(() => {
+            startTime = Date.now(); // Reset start time
+            animate();
+          });
+        }
+      },
+      { threshold: [0, 0.15, 0.3, 0.5] }
+    );
+    
+    observer.observe(timelineRef.current);
+    
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(animFrameRef.current);
+    };
+  }, [prefersReduced, timelineTriggered]);
 
-  // Cleanup on unmount
-  useEffect(() => () => {
-    cancelAnimationFrame(statsRaf.current);
-    cancelAnimationFrame(tlRaf.current);
-  }, []);
-
-  // Scroll lock: block wheel/touch while countup is running (p >= 0.04 until statsVP === 1)
-  const scrollLocked = useRef(false);
-  useEffect(() => {
-    const shouldLock = countupDone.current && statsVP < 1;
-    if (shouldLock && !scrollLocked.current) {
-      scrollLocked.current = true;
-      const prevent = (e: Event) => { e.preventDefault(); };
-      document.addEventListener("wheel", prevent, { passive: false });
-      document.addEventListener("touchmove", prevent, { passive: false });
-      return () => {
-        scrollLocked.current = false;
-        document.removeEventListener("wheel", prevent);
-        document.removeEventListener("touchmove", prevent);
-      };
-    }
-    if (!shouldLock && scrollLocked.current) {
-      scrollLocked.current = false;
-    }
-  }, [statsVP]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (prefersReduced) return <ProblemStatic />;
-
-  // ── Scroll gates LAYERS — timers drive ANIMATIONS — auto-shows for text ──
-
-  // Headline + lead: appear almost immediately on section entry
-  const headOp = remap(p, 0, 0.02);
-  const leadOp = remap(p, 0.01, 0.03);
-
-  // Countup — driven by statsVP timer (staggered L→R)
-  const s1t = eio(remap(statsVP, 0,    0.88));
-  const s2t = eio(remap(statsVP, 0.08, 0.94));
-  const s3t = eio(remap(statsVP, 0.16, 1.00));
+  // Calculate countup values with stagger
+  const s1t = prefersReduced ? 1 : eio(remap(countupProgress, 0, 0.85));
+  const s2t = prefersReduced ? 1 : eio(remap(countupProgress, 0.08, 0.92));
+  const s3t = prefersReduced ? 1 : eio(remap(countupProgress, 0.16, 1.0));
   const s1Val = (s1t * 4.3).toFixed(1);
-  const s2Val = String(Math.round(s2t * 85));
-
-  // Captions fade in as countup nears completion
-  const captionOp = remap(statsVP, 0.82, 1.0);
-
-  // Challenge — auto-shows after countup completes (timer-driven, no scroll)
-  const challengeOp = remap(statsVP, 0.94, 1.0);
-  const challengeY  = (1 - remap(statsVP, 0.94, 1.0)) * 12;
-
-  // Stats layer: in immediately, holds until p=0.30 (wide hold zone for deliberate scroll)
-  const statsLayerOp = remap(p, 0.01, 0.04) * (1 - remap(p, 0.30, 0.38));
-
-  // Timeline layer: appears after stats clear (p 0.38→0.44)
-  const tlLayerOp = remap(p, 0.38, 0.44);
-  const tlEntryY  = (1 - remap(p, 0.38, 0.44)) * 16;
-
-  // Sweep — driven by tlVP timer
-  const sweep    = tlVP;
-  const n0Active = tlVP >= 0.15;
-  const n1Active = tlVP >= 0.50;
-  const n2Active = tlVP >= 0.85;
-
-  // AMLR glow + others dim — timer-driven with sweep (appears WITH timeline, no extra scroll)
-  const amlrGlow  = remap(tlVP, 0.82, 1.0);
-  const othersDim = remap(tlVP, 0.82, 1.0) * 0.55;
-
-  // AMLR badge — appears when AMLR node activates (with timeline animation)
-  const amlrDescOp = remap(tlVP, 0.85, 1.0);
-
-  // Bridge quote — auto-shows after sweep completes (timer-driven, no scroll)
-  const bridgeOp = remap(tlVP, 0.95, 1.0);
-
-  // Scroll hint
-  const hintVisible = p > 0.005 && p < 0.99;
-  // CTA flash #1: countup done + challenge visible → user needs to scroll to timeline
-  // CTA flash #2: sweep done + bridge visible → user needs to scroll past section
-  const inCta  = hintVisible && (
-    (statsVP >= 1 && challengeOp >= 0.85 && p < 0.29) ||
-    (tlVP >= 1 && bridgeOp >= 0.85 && p > 0.44 && p < 0.95)
-  );
-  const inHold = false; // no other hold zones — all subsequent animations are timer-driven
-
-  const brickCfgs = [
-    { cols: 3, rows: 2, color: "rgba(210,55,20,0.45)",  border: "1px solid rgba(210,55,20,0.30)",  glow: true  },
-    { cols: 3, rows: 1, color: "rgba(195,115,35,0.38)", border: "1px solid rgba(195,115,35,0.22)", glow: false },
-    { cols: 3, rows: 1, color: "transparent",           border: "1px dashed rgba(255,255,255,0.06)", glow: false },
-  ];
+  const s2Val = Math.round(s2t * 43);
+  const s3Val = Math.round(s3t * 15);
+  
+  // Timeline node activation
+  const tlProg = prefersReduced ? 1 : timelineProgress;
+  const n0Active = tlProg >= 0.20;
+  const n1Active = tlProg >= 0.55;
+  const n2Active = tlProg >= 0.85;
+  const amlrGlow = remap(tlProg, 0.82, 1.0);
 
   return (
-    <div ref={outer} id="problem" style={{ position: "relative", height: "360vh" }}>
-      <div style={{ position: "sticky", top: 0, height: "100vh", background: C.navy, overflow: "hidden" }}>
-        <div className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: "linear-gradient(90deg, transparent 10%, rgba(255,90,31,0.25) 50%, transparent 90%)" }} />
+    <section id="problem" className="relative py-12 lg:py-16" style={{ background: C.navy }}>
+      <div className="absolute top-0 left-0 right-0 h-px"
+        style={{ background: "linear-gradient(90deg, transparent 10%, rgba(255,90,31,0.25) 50%, transparent 90%)" }} />
+      
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+        <p className="text-xs tracking-[0.22em] uppercase f-mono mb-2" style={{ color: C.orange }}>{tp.label}</p>
+        <h2 className="f-display font-semibold leading-tight mb-3"
+          style={{ fontSize: "clamp(1.5rem, 3vw, 2.4rem)", color: C.offWhite, maxWidth: "22ch" }}>{tp.h2}</h2>
+        <p className="text-sm lg:text-base leading-relaxed mb-6 max-w-2xl" style={{ color: C.muted }}>{tp.lead}</p>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-10"
-          style={{ height: "100%", display: "flex", flexDirection: "column", paddingTop: "calc(64px + 2vh)", paddingBottom: "3vh" }}>
+        <p className="text-xs tracking-[0.22em] uppercase f-mono mb-1" style={{ color: C.dim }}>{tp.statsCaption1}</p>
+        <p className="text-xs tracking-[0.22em] uppercase f-mono mb-3" style={{ color: C.orange }}>{tp.statsCaption2}</p>
 
-          {/* ── Headline ── */}
-          <div style={{ opacity: headOp, flexShrink: 0 }}>
-            <p className="text-xs tracking-[0.22em] uppercase f-mono mb-3" style={{ color: C.orange }}>{tp.label}</p>
-            <h2 className="f-display font-semibold leading-tight mb-3"
-              style={{ fontSize: "clamp(1.9rem, 3.8vw, 3.2rem)", color: C.offWhite, maxWidth: "22ch" }}>
-              {tp.h2}
-            </h2>
-            <p className="leading-relaxed max-w-2xl"
-              style={{ fontSize: "clamp(0.9rem, 1.2vw, 1.05rem)", color: C.muted, opacity: leadOp }}>
-              {tp.lead}
-            </p>
-          </div>
+        {/* Stats - with countup animation */}
+        <div ref={statsRef} className="grid grid-cols-1 sm:grid-cols-3 mb-4" style={{ borderTop: `1px solid ${C.border}`, borderLeft: `1px solid ${C.border}` }}>
+          {[
+            { val: `€${s1Val}B+`, t: s1t, cap: tp.stats[0].cap, src: tp.stats[0].src },
+            { val: `${s2Val}%`, t: s2t, cap: tp.stats[1].cap, src: tp.stats[1].src },
+            { val: `${s3Val} min`, t: s3t, cap: tp.stats[2].cap, src: tp.stats[2].src },
+          ].map((stat, i) => (
+            <div key={i} style={{ borderRight: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: "1.25rem 1.5rem" }}>
+              <div className="f-display font-bold tabular-nums leading-none mb-2" style={{ fontSize: "clamp(2.2rem, 3.5vw, 3.2rem)", color: C.orange }}>{stat.val}</div>
+              <p className="leading-relaxed f-mono mb-1" style={{ fontSize: "0.8rem", color: C.muted }}>{stat.cap}</p>
+              <p className="text-xs f-mono" style={{ color: C.dim, fontSize: "0.7rem" }}>{stat.src}</p>
+            </div>
+          ))}
+        </div>
 
-          {/* ── Content area: two absolute layers share the same space ── */}
-          <div className="flex-1 mt-4" style={{ position: "relative" }}>
+        {/* Quote */}
+        <div className="mb-6" style={{ 
+          padding: "1rem 1.5rem", 
+          borderLeft: `2px solid rgba(255,90,31,0.3)`,
+          background: "rgba(255,90,31,0.03)"
+        }}>
+          <p className="f-display italic font-semibold leading-tight mb-2"
+            style={{ fontSize: "clamp(1.4rem, 2.6vw, 2.3rem)", color: C.offWhite }}>
+            {`"${tp.challengeTitle}"`}
+          </p>
+          <p style={{ 
+            fontSize: "clamp(0.85rem, 1vw, 0.95rem)", 
+            lineHeight: 1.6, 
+            color: "rgba(242,238,232,0.65)",
+            whiteSpace: "pre-line" 
+          }}>
+            {tp.challengeBody}
+          </p>
+        </div>
 
-            {/* Layer A — Stats + Challenge (p 0→0.46) */}
-            <div style={{
-              position: "absolute", inset: 0,
-              opacity: statsLayerOp,
-              pointerEvents: statsLayerOp < 0.05 ? "none" : "auto",
-            }}>
-              <p className="text-xs tracking-[0.22em] uppercase f-mono mb-1" style={{ color: C.dim }}>{tp.statsCaption1}</p>
-              <p className="text-xs tracking-[0.22em] uppercase f-mono mb-3" style={{ color: C.orange }}>{tp.statsCaption2}</p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3"
-                style={{ borderTop: `1px solid ${C.border}`, borderLeft: `1px solid ${C.border}` }}>
-                {[
-                  { val: `€${s1Val}B+`, t: s1t, cap: tp.stats[0].cap },
-                  { val: `${s2Val}%`,   t: s2t, cap: tp.stats[1].cap },
-                  { val: "15 min",      t: s3t, cap: tp.stats[2].cap },
-                ].map((s, i) => (
-                  <div key={i} style={{
-                    borderRight: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`,
-                    padding: "0.75rem 1.25rem",
-                    opacity: Math.max(0.12, s.t),
-                  }}>
-                    <div className="f-display font-bold tabular-nums leading-none mb-2"
-                      style={{ fontSize: "clamp(1.8rem, 3.2vw, 3rem)", color: C.orange }}>
-                      {s.val}
-                    </div>
-                    <div style={{ opacity: captionOp }}>
-                      <p className="text-xs leading-relaxed f-mono" style={{ color: C.muted }}>{s.cap}</p>
-                    </div>
+        {/* Timeline */}
+        <p className="text-xs tracking-[0.22em] uppercase f-mono mb-1" style={{ color: C.dim }}>{tp.tlCaption1}</p>
+        <p className="text-xs tracking-[0.22em] uppercase f-mono mb-6" style={{ color: C.orange }}>{tp.tlCaption2}</p>
+        
+        <div ref={timelineRef} className="flex items-start relative mb-8">
+          {/* Horizontal line */}
+          <div className="absolute left-0 right-0 h-px" style={{ top: '5rem', background: C.border }} />
+          <div className="absolute left-0 h-px" 
+            style={{ 
+              top: '5rem',
+              width: `${tlProg * 87.5}%`, 
+              background: `linear-gradient(90deg, ${C.orange}, rgba(255,90,31,0.5))`,
+              transition: 'width 0.1s linear'
+            }} />
+          {tp.nodes.map((node, i) => {
+            const isAmlr = i === 2;
+            const active = [n0Active, n1Active, n2Active][i];
+            const brickCfgs = [
+              { cols: 3, rows: 2, color: "rgba(210,55,20,0.45)", border: "1px solid rgba(210,55,20,0.30)" },
+              { cols: 3, rows: 1, color: "rgba(195,115,35,0.38)", border: "1px solid rgba(195,115,35,0.22)" },
+              { cols: 3, rows: 1, color: "transparent", border: "1px dashed rgba(255,255,255,0.06)" },
+            ];
+            const cfg = brickCfgs[i];
+            return (
+              <div key={i} className="relative flex-1 pr-6" 
+                style={{ 
+                  opacity: active ? 1 : (prefersReduced ? 1 : 0.3),
+                  transition: 'opacity 0.4s ease',
+                  ...(isAmlr && amlrGlow > 0 ? { 
+                    filter: `drop-shadow(0 0 ${amlrGlow * 14}px rgba(255,90,31,0.6))` 
+                  } : {})
+                }}>
+                <div style={{ height: "5rem", display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingBottom: 8 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: `repeat(${cfg.cols}, 18px)`, gap: 3 }}>
+                    {Array.from({ length: cfg.cols * cfg.rows }, (_, b) => (
+                      <div key={b} style={{ width: 18, height: 6, borderRadius: 2, background: cfg.color, border: cfg.border }} />
+                    ))}
                   </div>
-                ))}
-              </div>
-
-              {/* Challenge — slides up after countup hold */}
-              <div style={{
-                marginTop: "1rem",
-                opacity: challengeOp,
-                transform: `translateY(${challengeY}px)`,
-                pointerEvents: "none",
-              }}>
-                <div style={{ padding: "0.75rem 1.25rem", borderLeft: `2px solid rgba(255,90,31,0.28)` }}>
-                  <p className="f-display italic font-semibold leading-tight mb-2"
-                    style={{ fontSize: "clamp(1.1rem, 1.76vw, 1.485rem)", color: C.offWhite }}>
-                    {`"${tp.challengeTitle}"`}
+                </div>
+                {/* Node dot - centered on line */}
+                <div style={{ 
+                  width: 12, height: 12, borderRadius: "50%", 
+                  background: active || prefersReduced ? (isAmlr ? C.orange : C.muted) : C.dim, 
+                  position: "relative", zIndex: 1,
+                  boxShadow: isAmlr && (active || prefersReduced) ? `0 0 ${8 + amlrGlow * 12}px ${C.orange}` : "none",
+                  transition: 'all 0.4s ease',
+                  margin: '0 auto',
+                  transform: 'translateY(-6px)'
+                }} />
+                <div style={{ paddingTop: "0.5rem" }}>
+                  <span className="block f-mono text-xs mb-0.5"
+                    style={{ color: (active || prefersReduced) ? (isAmlr ? "rgba(255,90,31,0.85)" : C.muted) : C.dim }}>
+                    {node.year}
+                  </span>
+                  <p className="font-semibold text-sm mb-0.5"
+                    style={{ color: (active || prefersReduced) ? (isAmlr ? C.orange : "rgba(242,238,232,0.88)") : "rgba(242,238,232,0.3)" }}>
+                    {node.label}
                   </p>
-                  <p style={{ fontSize: "clamp(1.045rem, 1.21vw, 1.155rem)", lineHeight: 1.75, color: "rgba(242,238,232,0.55)", whiteSpace: "pre-line" }}>
-                    {tp.challengeBody}
+                  <p className="leading-snug"
+                    style={{ fontSize: "0.825rem", color: (active || prefersReduced) ? C.muted : "rgba(122,125,154,0.3)", maxWidth: "26ch" }}>
+                    {node.desc}
                   </p>
+                  {isAmlr && (
+                    <div style={{ marginTop: 6, opacity: (active || prefersReduced) ? 1 : 0, transition: 'opacity 0.4s' }}>
+                      <span className="inline-block text-xs px-2 py-0.5 rounded-sm f-mono"
+                        style={{ background: "rgba(255,90,31,0.12)", color: C.orange, border: `1px solid rgba(255,90,31,0.22)` }}>
+                        {t.problem.amlrBadge}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-
-            {/* Layer B — Timeline + Bridge (p 0.48→1.0) */}
-            <div style={{
-              position: "absolute", inset: 0,
-              opacity: tlLayerOp,
-              transform: `translateY(${tlEntryY}px)`,
-              pointerEvents: tlLayerOp < 0.05 ? "none" : "auto",
-            }}>
-              <p className="text-xs tracking-[0.22em] uppercase f-mono mb-1" style={{ color: C.dim }}>{tp.tlCaption1}</p>
-              <p className="text-xs tracking-[0.22em] uppercase f-mono mb-4" style={{ color: C.orange }}>{tp.tlCaption2}</p>
-
-              <div className="hidden lg:flex relative">
-                {/* Track */}
-                <div className="absolute left-0 right-0 h-px" style={{ top: "5rem", background: C.border }} />
-                {/* Progress line */}
-                <div className="absolute left-0 h-px" style={{
-                  top: "5rem",
-                  width: `${sweep * 85}%`,
-                  background: `linear-gradient(90deg, ${C.orange}, rgba(255,90,31,0.45))`,
-                }} />
-
-                {nodes.map((n, i) => {
-                  const active    = [n0Active, n1Active, n2Active][i];
-                  const isAmlr    = i === 2;
-                  const nodeOp    = isAmlr ? 1 : Math.max(0.45, 1 - othersDim);
-                  const brickCfg  = brickCfgs[i];
-                  const barrierOp = isAmlr ? Math.max(0, 1 - amlrGlow * 3) : (active ? 1 : 0.25);
-                  const BW = 18, BH = 6, BG = 3;
-
-                  return (
-                    <div key={i} className="flex-1 pr-6" style={{
-                      opacity: nodeOp,
-                      ...(isAmlr && amlrGlow > 0 ? { filter: `drop-shadow(0 0 ${amlrGlow * 14}px rgba(255,90,31,0.55))` } : {}),
-                    }}>
-                      {/* Barrier bricks */}
-                      <div style={{
-                        height: "5rem", display: "flex", flexDirection: "column",
-                        justifyContent: "flex-end", paddingBottom: 8, opacity: barrierOp,
-                      }}>
-                        <div style={{ display: "grid", gridTemplateColumns: `repeat(${brickCfg.cols}, ${BW}px)`, gap: BG }}>
-                          {Array.from({ length: brickCfg.cols * brickCfg.rows }, (_, b) => (
-                            <div key={b} style={{
-                              width: BW, height: BH, borderRadius: 2,
-                              background: brickCfg.color, border: brickCfg.border,
-                              boxShadow: brickCfg.glow ? "0 0 5px rgba(210,55,20,0.18)" : "none",
-                            }} />
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Node dot */}
-                      <div style={{
-                        width: 12, height: 12, borderRadius: "50%", marginTop: -6,
-                        background: active ? C.orange : C.dim,
-                        position: "relative", zIndex: 1,
-                        boxShadow: isAmlr && active ? `0 0 ${8 + amlrGlow * 10}px ${C.orange}` : "none",
-                      }} />
-
-                      {/* Label */}
-                      <div style={{ paddingTop: "0.5rem" }}>
-                        <span className="block f-mono text-xs mb-0.5"
-                          style={{ color: active ? (isAmlr ? "rgba(255,90,31,0.85)" : C.muted) : C.dim }}>
-                          {n.year}
-                        </span>
-                        <p className="font-semibold text-sm mb-0.5"
-                          style={{ color: active ? (isAmlr ? C.orange : "rgba(242,238,232,0.88)") : "rgba(242,238,232,0.22)" }}>
-                          {n.label}
-                        </p>
-                        <p className="leading-snug"
-                          style={{ fontSize: "0.825rem", color: active ? C.muted : "transparent", maxWidth: "26ch" }}>
-                          {n.desc}
-                        </p>
-                        {/* Badge space pre-reserved for all nodes (height fixed) — prevents CLS */}
-                        <div style={{ height: 28, marginTop: 6, display: "flex", alignItems: "center", opacity: isAmlr ? amlrDescOp : 0 }}>
-                          {isAmlr && (
-                            <span className="inline-block text-xs px-2 py-0.5 rounded-sm f-mono"
-                              style={{ background: "rgba(255,90,31,0.12)", color: C.orange, border: `1px solid rgba(255,90,31,0.22)` }}>
-                              {t.problem.amlrBadge}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Bridge quote */}
-              <div style={{ marginTop: "1rem", opacity: bridgeOp }}>
-                <p className="f-display italic"
-                  style={{ fontSize: "clamp(1.15rem, 1.75vw, 1.56rem)", lineHeight: 1.65, maxWidth: "42ch" }}>
-                  <span style={{ color: "rgba(242,238,232,0.85)" }}>{t.bridge.line1}</span>
-                  <br />
-                  <span style={{ color: C.orange }}>{t.bridge.line2}</span>
-                </p>
-              </div>
-            </div>
-          </div>
+            );
+          })}
         </div>
-
-        {/* Scroll hint */}
-        <div className="absolute bottom-0 left-0 right-0 flex justify-center pointer-events-none"
-          style={{ paddingBottom: "2.5vh", opacity: hintVisible ? 1 : 0, transition: "opacity 0.5s ease" }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5 }}>
-            <span className="f-mono"
-              style={{
-                fontSize: "0.62rem", letterSpacing: "0.24em",
-                color: inCta ? C.orange : inHold ? "rgba(242,238,232,0.7)" : "rgba(122,125,154,0.8)",
-                transition: "color 0.4s ease",
-              }}>
-              {tp.scrollHint ?? "SCROLL"}
-            </span>
-            <div className={inCta ? "scroll-hint-cta" : inHold ? "scroll-hint-hold" : "scroll-hint-idle"}>
-              <svg width="18" height="22" viewBox="0 0 18 22" fill="none">
-                <path d="M9 0v17M1 10l8 8 8-8"
-                  stroke={inCta ? C.orange : inHold ? "rgba(242,238,232,0.75)" : "rgba(122,125,154,0.7)"}
-                  strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-          </div>
-        </div>
+        
+        {/* Bridge sentence */}
+        <p className="f-display italic leading-relaxed" 
+          style={{ 
+            fontSize: "clamp(0.95rem, 1.4vw, 1.2rem)", 
+            lineHeight: 1.55, 
+            maxWidth: "42ch",
+            paddingLeft: "1.5rem",
+            borderLeft: `2px solid rgba(255,90,31,0.3)`
+          }}>
+          <span style={{ color: "rgba(242,238,232,0.85)" }}>{t.bridge.line1}</span><br />
+          <span style={{ color: C.orange }}>{t.bridge.line2}</span>
+        </p>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -745,16 +672,16 @@ function ProblemBridge() {
       <div className="max-w-7xl mx-auto px-6 lg:px-10 text-center">
         <motion.p
           className="f-display italic leading-tight inline-block"
-          style={{ fontSize: "clamp(1.4rem, 2.6vw, 2.3rem)", maxWidth: "34ch" }}
+          style={{ fontSize: "clamp(1.4rem, 2.6vw, 2.3rem)", whiteSpace: "nowrap" }}
           initial={{ opacity: 0, y: 28 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <span style={{ display: "block", marginBottom: "0.4em", color: "rgba(242,238,232,0.88)" }}>
+          <span style={{ marginRight: "0.35em", color: "rgba(242,238,232,0.88)" }}>
             {"“Regulation opened the door to collaboration."}
           </span>
           <motion.span
-            style={{ display: "block", color: C.orange, textShadow: "0 0 60px rgba(255,90,31,0.35)" }}
+            style={{ color: C.orange, textShadow: "0 0 60px rgba(255,90,31,0.35)" }}
             initial={{ opacity: 0, y: 14 }}
             animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
             transition={{ duration: 0.65, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
@@ -858,10 +785,7 @@ function Solution() {
             </div>
 
             <button
-              onClick={() => {
-                navigate("/product");
-                window.scrollTo(0, 0);
-              }}
+              onClick={() => navigate("/product")}
               className="inline-flex items-center gap-2.5 px-7 py-3.5 text-sm font-medium transition-all duration-200 tracking-widest"
               style={{ background: C.orange, color: "#fff" }}
               onMouseEnter={e => (e.currentTarget.style.background = C.orangeLight)}
@@ -1022,7 +946,11 @@ function Technology() {
             viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}
             className="mb-12 text-right"
             style={{ fontSize: "clamp(1.2rem, 2vw, 1.6rem)", color: "rgba(242,238,232,0.65)", lineHeight: 1.5 }}>
-            {t.technology.body}
+            {lang === "en" ? (
+              <>Built on years of cryptographic research and real-world deployment by our parent company <span style={{ color: C.orange }}>DESILO KOREA</span>.</>
+            ) : (
+              <>Fruit de plusieurs années de recherche cryptographique et de déploiements concrets par notre maison mère <span style={{ color: C.orange }}>DESILO KOREA</span>.</>
+            )}
           </motion.p>
 
           {/* Capabilities — right-aligned */}
@@ -1160,6 +1088,13 @@ function Footer() {
               onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
               onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
               <Linkedin size={13} /> LinkedIn
+            </a>
+            <a href="https://desilo.ai" target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm transition-colors"
+              style={{ color: C.muted }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+              DESILO KOREA
             </a>
           </div>
         </div>
