@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { X, Menu } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import frame3Logo from "@/imports/Frame_7.png";
+import frame3Logo from "@/imports/desilo-europe-logo.png";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import { useLang } from "@/app/context/LanguageContext";
 import { LangToggle } from "@/app/components/LangToggle";
@@ -36,19 +36,38 @@ export function Navigation() {
   const isProduct = currentPath === "/product";
   const isNews = currentPath.startsWith("/news");
 
+  const forceTop = () => {
+    const html = document.documentElement;
+    const prev = html.style.scrollBehavior;
+    html.style.scrollBehavior = "auto";
+    window.scrollTo(0, 0);
+    html.scrollTop = 0;
+    document.body.scrollTop = 0;
+    html.style.scrollBehavior = prev;
+  };
+
   const navigateToHome = () => {
     setOpen(false);
-    navigate("/");
+    forceTop();
+    navigate("/", { replace: false });
+    requestAnimationFrame(forceTop);
   };
 
   const navigateToProduct = () => {
     setOpen(false);
-    navigate("/product");
+    forceTop();
+    // Clear any leftover hash (e.g. #holmes-logo) so Solution always starts at the top.
+    navigate({ pathname: "/product", hash: "" });
+    requestAnimationFrame(forceTop);
+    setTimeout(forceTop, 0);
+    setTimeout(forceTop, 50);
   };
 
   const navigateToNews = () => {
     setOpen(false);
-    navigate("/news");
+    forceTop();
+    navigate({ pathname: "/news", hash: "" });
+    requestAnimationFrame(forceTop);
   };
 
   const scrollToSection = (id: string) => {
@@ -74,7 +93,7 @@ export function Navigation() {
     >
       <div
         className="max-w-7xl mx-auto px-6 lg:px-10 py-2 flex items-center justify-between gap-8"
-        style={{ minHeight: "4rem" }}
+        style={{ minHeight: "6rem" }}
       >
         {/* Logo */}
         <button
@@ -85,7 +104,7 @@ export function Navigation() {
             src={frame3Logo}
             alt="DESILO Europe"
             className="w-auto object-contain"
-            style={{ height: "4rem" }}
+            style={{ height: "5.5rem" }}
           />
         </button>
 

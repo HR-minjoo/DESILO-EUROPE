@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { SEO } from "@/app/components/SEO";
 import { motion } from "motion/react";
-import { X, Menu, ArrowLeft, Clock, ArrowRight } from "lucide-react";
+import { X, Menu, ArrowLeft, Clock, ArrowRight, Linkedin } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -536,11 +536,67 @@ export default function ArticleDetail() {
       )}
 
       {/* ── Footer ── */}
-      <footer className="border-t py-10" style={{ background: C.navy, borderColor: C.border }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 text-center">
-          <p className="text-sm f-mono" style={{ color: C.dim }}>
-            © 2026 DESILO Europe. Built on privacy-preserving technology.
-          </p>
+      <footer style={{ background: "#040615", borderTop: `1px solid ${C.border}` }}>
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-14 lg:py-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+            <div className="col-span-2 md:col-span-2">
+              <div className="flex items-center gap-1.5 mb-4">
+                <span className="f-display font-semibold text-sm" style={{ color: C.offWhite }}>DESILO</span>
+                <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(255,90,31,0.15)", color: C.orange }}>Europe</span>
+              </div>
+              <p className="text-sm leading-relaxed" style={{ color: C.dim }}>
+                DESILO Europe S.à r.l.<br />
+                9 Rue du Laboratoire, 1911 Gare Luxembourg
+              </p>
+              <p className="text-sm leading-relaxed mt-4" style={{ color: C.dim }}>
+                DESILO KOREA<br />
+                138, Seoun-ro, Seocho-gu, Seoul, Republic of Korea
+              </p>
+            </div>
+            <div>
+              <p className="text-xs f-mono tracking-[0.15em] uppercase mb-3" style={{ color: C.dim }}>Contact</p>
+              <a href="https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0" target="_blank" rel="noopener noreferrer" className="text-sm transition-colors"
+                style={{ color: C.muted }}
+                onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
+                onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+                contact@luxdesilo.ai
+              </a>
+            </div>
+            <div>
+              <p className="text-xs f-mono tracking-[0.15em] uppercase mb-3" style={{ color: C.dim }}>Follow</p>
+              <div className="flex flex-col gap-2">
+                <a href="https://www.linkedin.com/company/desilo-europe/" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm transition-colors"
+                  style={{ color: C.muted }}
+                  onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
+                  onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+                  <Linkedin size={13} /> LinkedIn DESILO EUROPE
+                </a>
+                <a href="https://www.linkedin.com/company/desilo/" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm transition-colors"
+                  style={{ color: C.muted }}
+                  onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
+                  onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+                  <Linkedin size={13} /> LinkedIn DESILO KOREA
+                </a>
+                <a href="https://desilo.ai" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm transition-colors"
+                  style={{ color: C.muted }}
+                  onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
+                  onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+                  DESILO KOREA
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-between gap-2 pt-6" style={{ borderTop: `1px solid ${C.border}` }}>
+            <p className="text-xs" style={{ color: C.dim }}>© DESILO Europe S.à r.l. All rights reserved.</p>
+            <a href="#" className="text-xs transition-colors" style={{ color: C.dim }}
+              onMouseEnter={e => (e.currentTarget.style.color = C.muted)}
+              onMouseLeave={e => (e.currentTarget.style.color = C.dim)}>
+              Privacy notice
+            </a>
+          </div>
         </div>
       </footer>
     </div>

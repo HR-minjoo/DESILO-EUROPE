@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { SEO } from "@/app/components/SEO";
 import { motion, AnimatePresence } from "motion/react";
-import { useNavigate } from "react-router";
-import { X, Menu } from "lucide-react";
+import { useLocation } from "react-router";
+import { Linkedin } from "lucide-react";
 import holmesLogoPng from "@/imports/logo_white-4.png";
 import holmesProduct from "@/imports/pdf4_img0.jpg";
 import vectorHolmes from "@/imports/Vector.png";
@@ -97,6 +97,8 @@ const fontStyle = `
   .lens-float {
     animation: lens-drift 14s ease-in-out infinite;
   }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+  * { scrollbar-width: none; }
 `;
 
 // ─── HOLMES full name mapping ─────────────────────────────────────────────────
@@ -405,10 +407,33 @@ function CoreCapabilities() {
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
 export default function Product() {
-  const navigate = useNavigate();
+  const location = useLocation();
   const { lang } = useLang();
   const t = T[lang];
   const zones = t.product.zones.items;
+
+  // Always land at the top when opening Solution via nav (no hash).
+  // Only scroll to #holmes-logo when that hash is explicitly present.
+  useLayoutEffect(() => {
+    const html = document.documentElement;
+    const prev = html.style.scrollBehavior;
+    html.style.scrollBehavior = "auto";
+
+    if (location.hash === "#holmes-logo") {
+      const el = document.getElementById("holmes-logo");
+      if (el) {
+        el.scrollIntoView({ behavior: "auto", block: "start" });
+      } else {
+        window.scrollTo(0, 0);
+      }
+    } else {
+      window.scrollTo(0, 0);
+      html.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+
+    html.style.scrollBehavior = prev;
+  }, [location.pathname, location.hash]);
 
   return (
     <div style={{ background: C.navy, minHeight: "100vh", position: "relative" }}>
@@ -521,15 +546,66 @@ export default function Product() {
           </div>
         </main>
 
-        <footer style={{ background: "rgba(4,6,21,0.95)", borderTop: `1px solid ${C.border}`, backdropFilter: "blur(12px)" }}>
-          <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p className="text-xs" style={{ color: C.dim }}>{t.product.footer.rights}</p>
-              <button onClick={() => navigate("/")} className="text-xs transition-colors" style={{ color: C.dim }}
+        <footer style={{ background: "#040615", borderTop: `1px solid ${C.border}` }}>
+          <div className="max-w-7xl mx-auto px-6 lg:px-10 py-14 lg:py-16">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+              <div className="col-span-2 md:col-span-2">
+                <div className="flex items-center gap-1.5 mb-4">
+                  <span className="f-display font-semibold text-sm" style={{ color: C.offWhite }}>DESILO</span>
+                  <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(255,90,31,0.15)", color: C.orange }}>Europe</span>
+                </div>
+                <p className="text-sm leading-relaxed" style={{ color: C.dim }}>
+                  DESILO Europe S.à r.l.<br />
+                  9 Rue du Laboratoire, 1911 Gare Luxembourg
+                </p>
+                <p className="text-sm leading-relaxed mt-4" style={{ color: C.dim }}>
+                  DESILO KOREA<br />
+                  138, Seoun-ro, Seocho-gu, Seoul, Republic of Korea
+                </p>
+              </div>
+              <div>
+                <p className="text-xs f-mono tracking-[0.15em] uppercase mb-3" style={{ color: C.dim }}>Contact</p>
+                <a href={lang === 'fr' ? "https://walla.my/v/IRvaXDzwyjpQ80jCRtSV" : "https://walla.my/survey/Z5EK7K3Kx5ukoOeZtzO0"} target="_blank" rel="noopener noreferrer" className="text-sm transition-colors"
+                  style={{ color: C.muted }}
+                  onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
+                  onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+                  contact@luxdesilo.ai
+                </a>
+              </div>
+              <div>
+                <p className="text-xs f-mono tracking-[0.15em] uppercase mb-3" style={{ color: C.dim }}>Follow</p>
+                <div className="flex flex-col gap-2">
+                  <a href="https://www.linkedin.com/company/desilo-europe/" target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm transition-colors"
+                    style={{ color: C.muted }}
+                    onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
+                    onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+                    <Linkedin size={13} /> LinkedIn DESILO EUROPE
+                  </a>
+                  <a href="https://www.linkedin.com/company/desilo/" target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm transition-colors"
+                    style={{ color: C.muted }}
+                    onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
+                    onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+                    <Linkedin size={13} /> LinkedIn DESILO KOREA
+                  </a>
+                  <a href="https://desilo.ai" target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm transition-colors"
+                    style={{ color: C.muted }}
+                    onMouseEnter={e => (e.currentTarget.style.color = C.offWhite)}
+                    onMouseLeave={e => (e.currentTarget.style.color = C.muted)}>
+                    DESILO KOREA
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row justify-between gap-2 pt-6" style={{ borderTop: `1px solid ${C.border}` }}>
+              <p className="text-xs" style={{ color: C.dim }}>© DESILO Europe S.à r.l. All rights reserved.</p>
+              <a href="#" className="text-xs transition-colors" style={{ color: C.dim }}
                 onMouseEnter={e => (e.currentTarget.style.color = C.muted)}
                 onMouseLeave={e => (e.currentTarget.style.color = C.dim)}>
-                {t.product.footer.back}
-              </button>
+                Privacy notice
+              </a>
             </div>
           </div>
         </footer>
