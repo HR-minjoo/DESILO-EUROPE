@@ -13,6 +13,7 @@ import {
 import { fetchLuxArticles, getFeaturedArticles } from "@/app/lib/luxArticles";
 import { useLang } from "@/app/context/LanguageContext";
 import { T } from "@/app/data/translations";
+import { SiteFooter } from "@/app/components/SiteFooter";
 import { Navigation } from "@/app/components/Navigation";
 
 type ArticlesLoadState =
@@ -23,14 +24,18 @@ type ArticlesLoadState =
 
 // ─── Tokens ───────────────────────────────────────────────────────────────────
 const C = {
-  navy: "#06081A",
-  navyCard: "#0B0E24",
+  navy: "#050E0D",
+  navyCard: "#0A1916",
+  cardBg: "#020706",
   orange: "#FF5A1F",
+  accent: "#22C48C",
+  accentLight: "#4FD3A5",
+  borderAccent: "rgba(34,196,140,0.3)",
   orangeLight: "#FF7040",
   orangeGlow: "rgba(255,90,31,0.22)",
   offWhite: "#F2EEE8",
-  muted: "#7A7D9A",
-  dim: "#3A3D58",
+  muted: "#8C9A95",
+  dim: "#4B5B56",
   border: "rgba(255,255,255,0.07)",
   borderOrange: "rgba(255,90,31,0.25)",
 };
@@ -79,11 +84,11 @@ function PageHeader() {
   return (
     <section className="relative pt-12 pb-10 overflow-hidden" style={{ background: C.navy }}>
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-64 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse 50% 40% at 50% 0%, rgba(255,90,31,0.12) 0%, transparent 70%)" }} />
+        style={{ background: "radial-gradient(ellipse 50% 40% at 50% 0%, rgba(34,196,140,0.12) 0%, transparent 70%)" }} />
 
       <div className="relative z-10 mx-auto px-6 lg:px-10 text-center" style={{ maxWidth: "90rem" }}>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
-          className="text-xs tracking-[0.2em] uppercase mb-3 f-mono" style={{ color: C.orange }}>
+          className="text-xs tracking-[0.2em] uppercase mb-3 f-mono" style={{ color: C.accent }}>
           {t.news.label}
         </motion.p>
 
@@ -118,18 +123,18 @@ function FilterBar({ selected, onSelect }: { selected: string; onSelect: (cat: s
   }, [searchOpen]);
 
   return (
-    <div className="sticky top-16 z-40 border-b" style={{ background: "rgba(6,8,26,0.95)", backdropFilter: "blur(16px)", borderColor: C.border }}>
+    <div className="sticky top-16 z-40 border-b" style={{ background: "rgba(5,14,13,0.95)", backdropFilter: "blur(16px)", borderColor: C.border }}>
       <div className="mx-auto px-6 lg:px-10 py-4 flex items-center justify-between gap-4" style={{ maxWidth: "90rem" }}>
         <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
           {allCategoryLabels.map(cat => (
             <button key={cat} onClick={() => onSelect(cat)}
               className="text-sm f-mono whitespace-nowrap transition-all duration-200 relative"
-              style={{ color: selected === cat ? C.orange : C.dim }}>
+              style={{ color: selected === cat ? C.accent : C.dim }}>
               {cat}
               {selected === cat && (
                 <motion.div layoutId="activeTab"
                   className="absolute -bottom-4 left-0 right-0 h-0.5"
-                  style={{ background: C.orange }} />
+                  style={{ background: C.accent }} />
               )}
             </button>
           ))}
@@ -161,16 +166,16 @@ function FeaturedCard({ article, index }: { article: Article; index: number }) {
   const navigate = useNavigate();
   const { lang } = useLang();
   const t = T[lang];
-  const accentColor = categoryColorMap[article.lux_category] ?? C.orange;
+  const accentColor = categoryColorMap[article.lux_category] ?? C.accent;
 
   return (
     <motion.article initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       onClick={() => navigate(`/news/${article.slug}`)}
-      className="group cursor-pointer relative overflow-hidden rounded-sm border"
-      style={{ background: C.navyCard, borderColor: C.borderOrange }}>
-      <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: C.orange }} />
+      className="group cursor-pointer relative overflow-hidden rounded-sm border flex flex-col h-full"
+      style={{ background: C.cardBg, borderColor: C.borderAccent }}>
+      <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: C.accent }} />
 
       <div className="relative aspect-[16/9] overflow-hidden" style={{ background: accentColor + "15" }}>
         {article.coverImage ? (
@@ -182,7 +187,7 @@ function FeaturedCard({ article, index }: { article: Article; index: number }) {
               animate={{ scale: hovered ? 1.05 : 1 }}
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             />
-            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 0%, ${C.navyCard} 100%)` }} />
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 0%, ${C.cardBg} 100%)` }} />
           </>
         ) : (
           <>
@@ -193,27 +198,28 @@ function FeaturedCard({ article, index }: { article: Article; index: number }) {
                 {categoryDisplayName[article.lux_category]?.split(" ")[0].toUpperCase() ?? "DESILO"}
               </p>
             </motion.div>
-            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 0%, ${C.navyCard} 100%)` }} />
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent 0%, ${C.cardBg} 100%)` }} />
           </>
         )}
       </div>
 
-      <div className="p-6">
+      <div className="p-6 flex-1 flex flex-col">
         <p className="text-xs f-mono uppercase tracking-wider mb-3" style={{ color: accentColor }}>
           {categoryDisplayName[article.lux_category]}
         </p>
 
-        <motion.h3 className="f-display font-semibold text-xl lg:text-2xl leading-tight mb-3"
-          animate={{ color: hovered ? C.orange : C.offWhite }}
+        <motion.h3 className="f-display font-semibold text-xl lg:text-2xl leading-tight mb-3 line-clamp-3"
+          title={article.title}
+          animate={{ color: hovered ? C.accent : C.offWhite }}
           transition={{ duration: 0.2 }}>
           {article.title}
         </motion.h3>
 
-        <p className="text-sm f-mono mb-4" style={{ color: C.dim }}>
+        <p className="text-sm f-mono mb-4 mt-auto pt-2" style={{ color: C.dim }}>
           {article.publishedAt} · {article.lux_author.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
         </p>
 
-        <div className="flex items-center gap-2 text-sm font-medium" style={{ color: C.orange }}>
+        <div className="flex items-center gap-2 text-sm font-medium" style={{ color: C.accent }}>
           <span>{t.news.readMore}</span>
           <motion.div animate={{ x: hovered ? 4 : 0 }} transition={{ duration: 0.2 }}>
             <ArrowRight size={16} />
@@ -222,7 +228,7 @@ function FeaturedCard({ article, index }: { article: Article; index: number }) {
       </div>
 
       <motion.div className="absolute inset-0 pointer-events-none"
-        animate={{ boxShadow: hovered ? `0 16px 48px ${C.orangeGlow}` : "0 0 0 transparent" }}
+        animate={{ boxShadow: hovered ? `0 16px 48px ${"rgba(34,196,140,0.22)"}` : "0 0 0 transparent" }}
         transition={{ duration: 0.3 }} />
     </motion.article>
   );
@@ -234,7 +240,7 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
   const navigate = useNavigate();
   const { lang } = useLang();
   const t = T[lang];
-  const accentColor = categoryColorMap[article.lux_category] ?? C.orange;
+  const accentColor = categoryColorMap[article.lux_category] ?? C.accent;
 
   return (
     <motion.article initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }}
@@ -242,8 +248,8 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
       transition={{ duration: 0.7, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       onClick={() => navigate(`/news/${article.slug}`)}
-      className="group cursor-pointer relative overflow-hidden rounded-sm border"
-      style={{ background: C.navyCard, borderColor: C.border }}>
+      className="group cursor-pointer relative overflow-hidden rounded-sm border flex flex-col h-full"
+      style={{ background: C.cardBg, borderColor: C.border }}>
       <div className="relative aspect-[16/9] overflow-hidden" style={{ background: accentColor + "10" }}>
         {article.coverImage ? (
           <motion.img 
@@ -264,7 +270,7 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
         )}
       </div>
 
-      <div className="p-5">
+      <div className="p-5 flex-1 flex flex-col">
         <div className="flex items-center gap-3 mb-3">
           <p className="text-xs f-mono uppercase tracking-wider" style={{ color: accentColor }}>
             {categoryDisplayName[article.lux_category]}
@@ -276,20 +282,21 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
           </div>
         </div>
 
-        <h3 className="f-display font-semibold text-lg lg:text-xl leading-tight mb-3"
-          style={{ color: hovered ? C.orange : C.offWhite, transition: "color 0.2s" }}>
+        <h3 className="f-display font-semibold text-lg lg:text-xl leading-tight mb-3 line-clamp-2"
+          title={article.title}
+          style={{ minHeight: "2.5em", color: hovered ? C.accent : C.offWhite, transition: "color 0.2s" }}>
           {article.title}
         </h3>
 
-        <p className="text-sm leading-relaxed mb-4 line-clamp-3" style={{ color: C.muted }}>
+        <p className="text-sm leading-relaxed mb-4 line-clamp-2" style={{ color: C.muted }}>
           {article.excerpt}
         </p>
 
-        <p className="text-xs f-mono mb-3" style={{ color: C.dim }}>
+        <p className="text-xs f-mono mb-3 mt-auto pt-2" style={{ color: C.dim }}>
           {article.publishedAt}
         </p>
 
-        <div className="flex items-center gap-2 text-sm font-medium" style={{ color: C.orange }}>
+        <div className="flex items-center gap-2 text-sm font-medium" style={{ color: C.accent }}>
           <span>{t.news.readMore}</span>
           <motion.div animate={{ x: hovered ? 4 : 0 }} transition={{ duration: 0.2 }}>
             <ArrowRight size={16} />
@@ -319,8 +326,8 @@ function FeaturedSection({ articles }: { articles: Article[] }) {
     <section className="relative py-16" style={{ background: C.navy }}>
       <div className="mx-auto px-6 lg:px-10" style={{ maxWidth: "90rem" }}>
         <div className="flex items-center gap-2 mb-10">
-          <Pin size={16} style={{ color: C.orange }} />
-          <h2 className="text-sm f-mono uppercase tracking-wider" style={{ color: C.orange }}>{t.news.featured}</h2>
+          <Pin size={16} style={{ color: C.accent }} />
+          <h2 className="text-sm f-mono uppercase tracking-wider" style={{ color: C.accent }}>{t.news.featured}</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -350,9 +357,11 @@ function LatestGrid({
     setVisibleCount(9);
   }, [category, loadState.kind]);
 
-  const nonFeatured =
-    loadState.kind === "ready" ? loadState.articles.filter(a => !a.isFeatured) : [];
-  const filtered = slug ? nonFeatured.filter(a => a.lux_category === slug) : nonFeatured;
+  // "All" shows every article including featured; category filters exclude featured duplicates.
+  const allArticles = loadState.kind === "ready" ? loadState.articles : [];
+  const filtered = slug
+    ? allArticles.filter(a => !a.isFeatured && a.lux_category === slug)
+    : allArticles;
   const visible = filtered.slice(0, visibleCount);
   const hasMore = visibleCount < filtered.length;
 
@@ -405,8 +414,8 @@ function LatestGrid({
           <div className="flex justify-center">
             <button onClick={() => setVisibleCount(prev => prev + 9)}
               className="px-8 py-3.5 text-sm font-medium rounded-sm border transition-all duration-200"
-              style={{ background: "transparent", color: C.orange, borderColor: C.borderOrange }}
-              onMouseEnter={e => { e.currentTarget.style.background = C.orange + "15"; }}
+              style={{ background: "transparent", color: C.accent, borderColor: C.borderAccent }}
+              onMouseEnter={e => { e.currentTarget.style.background = C.accent + "15"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}>
               {lang === "fr" ? "Charger plus d'articles" : "Load more articles"}
             </button>
@@ -417,24 +426,9 @@ function LatestGrid({
   );
 }
 
-// ─── Footer ───────────────────────────────────────────────────────────────────
-function Footer() {
-  const { lang } = useLang();
-  const t = T[lang];
-  return (
-    <footer className="relative border-t py-12" style={{ background: C.navy, borderColor: C.border }}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 text-center">
-        <p className="text-sm f-mono" style={{ color: C.dim }}>
-          {t.footer.rights}
-        </p>
-      </div>
-    </footer>
-  );
-}
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
 export default function News() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [loadState, setLoadState] = useState<ArticlesLoadState>({ kind: "loading" });
 
   useEffect(() => {
@@ -489,10 +483,9 @@ export default function News() {
       <style>{fontStyle}</style>
       <Navigation />
       <PageHeader />
-      <FilterBar selected={selectedCategory} onSelect={setSelectedCategory} />
       {loadState.kind === "ready" && <FeaturedSection articles={readyArticles} />}
-      <LatestGrid category={selectedCategory} loadState={loadState} />
-      <Footer />
+      <LatestGrid category="All" loadState={loadState} />
+      <SiteFooter />
     </div>
   );
 }

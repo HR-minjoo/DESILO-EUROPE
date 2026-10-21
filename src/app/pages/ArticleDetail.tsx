@@ -16,19 +16,34 @@ import {
   type Article,
 } from "@/app/data/news";
 import { fetchLuxArticles } from "@/app/lib/luxArticles";
+import { SiteFooter } from "@/app/components/SiteFooter";
 import { Navigation } from "@/app/components/Navigation";
 
 // ─── Tokens ───────────────────────────────────────────────────────────────────
 const C = {
-  navy: "#06081A",
-  navyCard: "#0B0E24",
+  navy: "#050E0D",
+  navyCard: "#0A1916",
   orange: "#FF5A1F",
+  accent: "#22C48C",
+  accentLight: "#4FD3A5",
+  borderAccent: "rgba(34,196,140,0.3)",
   offWhite: "#F2EEE8",
-  muted: "#7A7D9A",
-  dim: "#3A3D58",
+  muted: "#8C9A95",
+  dim: "#4B5B56",
   border: "rgba(255,255,255,0.07)",
   borderOrange: "rgba(255,90,31,0.18)",
 };
+
+// Light-section palette (used where a section switches to a light background)
+const L = {
+  bg: "#F4F6F5",
+  card: "#FFFFFF",
+  border: "#E1E7E4",
+  ink: "#0B1A16",
+  body: "#5C6B66",
+  accentText: "#128A5F", // brand green darkened for legible text on light backgrounds
+};
+
 
 const fontStyle = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,500;1,600;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=DM+Mono:wght@300;400&display=swap');
@@ -55,7 +70,7 @@ const fontStyle = `
   .article-body p { 
     line-height: 1.85; 
     margin-bottom: 1.4em; 
-    color: rgba(242,238,232,0.82); 
+    color: ${L.ink}; 
     font-size: clamp(1rem, 1.15vw, 1.125rem); 
   }
   .article-body h1,
@@ -63,7 +78,7 @@ const fontStyle = `
   .article-body h3 { 
     font-family: var(--font-display); 
     font-weight: 600; 
-    color: #F2EEE8; 
+    color: ${L.ink}; 
     margin-top: 2.5em; 
     margin-bottom: 0.8em; 
     line-height: 1.3; 
@@ -83,7 +98,7 @@ const fontStyle = `
     padding-left: 1.5em; 
     position: relative; 
     margin-bottom: 0.5em; 
-    color: rgba(242,238,232,0.72); 
+    color: ${L.body}; 
     font-size: clamp(0.95rem, 1.1vw, 1.05rem); 
     line-height: 1.7; 
   }
@@ -91,7 +106,7 @@ const fontStyle = `
     content: "—"; 
     position: absolute; 
     left: 0; 
-    color: ${C.orange}; 
+    color: ${C.accent}; 
     opacity: 0.7; 
   }
   .article-body ol { 
@@ -102,42 +117,42 @@ const fontStyle = `
     counter-increment: item; 
     position: absolute; 
     left: 0; 
-    color: ${C.orange}; 
+    color: ${C.accent}; 
     opacity: 0.7; 
     font-weight: 500;
   }
   
   .article-body a { 
-    color: ${C.orange}; 
+    color: ${L.accentText}; 
     text-decoration: none; 
-    border-bottom: 1px solid rgba(255,90,31,0.3);
+    border-bottom: 1px solid rgba(34,196,140,0.3);
     transition: all 0.2s;
   }
   .article-body a:hover { 
-    border-bottom-color: ${C.orange}; 
+    border-bottom-color: ${L.accentText}; 
     opacity: 0.8;
   }
   
   .article-body strong { 
     font-weight: 600; 
-    color: rgba(242,238,232,0.95); 
+    color: ${L.ink}; 
   }
   .article-body em { 
     font-style: italic; 
-    color: rgba(242,238,232,0.85); 
+    color: ${L.ink}; 
   }
   
   .article-body code { 
     font-family: var(--font-mono); 
-    background: rgba(255,90,31,0.1); 
-    color: ${C.orange}; 
+    background: rgba(34,196,140,0.12); 
+    color: ${L.accentText}; 
     padding: 0.2em 0.4em; 
     border-radius: 3px; 
     font-size: 0.9em;
   }
   .article-body pre { 
-    background: rgba(11,14,36,0.6); 
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #EAEFED; 
+    border: 1px solid ${L.border};
     border-radius: 6px; 
     padding: 1.25em; 
     overflow-x: auto; 
@@ -146,20 +161,20 @@ const fontStyle = `
   .article-body pre code { 
     background: transparent; 
     padding: 0; 
-    color: rgba(242,238,232,0.82);
+    color: ${L.ink};
   }
   
   .article-body blockquote { 
-    border-left: 2px solid ${C.orange}; 
+    border-left: 2px solid ${C.accent}; 
     padding-left: 1.5em; 
     margin: 2em 0;
-    color: rgba(242,238,232,0.75);
+    color: ${L.body};
     font-style: italic;
   }
   
   .article-body hr { 
     border: none; 
-    border-top: 1px solid rgba(255,255,255,0.1); 
+    border-top: 1px solid ${L.border}; 
     margin: 3em 0;
   }
   
@@ -170,17 +185,17 @@ const fontStyle = `
   }
   .article-body table th,
   .article-body table td {
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid ${L.border};
     padding: 0.75em 1em;
     text-align: left;
   }
   .article-body table th {
-    background: rgba(255,90,31,0.1);
-    color: ${C.offWhite};
+    background: rgba(34,196,140,0.1);
+    color: ${L.ink};
     font-weight: 600;
   }
   .article-body table td {
-    color: rgba(242,238,232,0.82);
+    color: ${L.ink};
   }
   
   ::-webkit-scrollbar { width: 0; height: 0; }
@@ -208,7 +223,7 @@ function Block({ block }: { block: BodyBlock }) {
   }
   if (block.type === "quote") {
     return (
-      <blockquote className="relative my-8 pl-6" style={{ borderLeft: `2px solid ${C.orange}` }}>
+      <blockquote className="relative my-8 pl-6" style={{ borderLeft: `2px solid ${C.accent}` }}>
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
           components={{
@@ -218,7 +233,7 @@ function Block({ block }: { block: BodyBlock }) {
                   fontFamily: "var(--font-display)",
                   fontSize: "clamp(1.05rem, 1.4vw, 1.2rem)",
                   lineHeight: 1.65,
-                  color: C.offWhite,
+                  color: L.ink,
                   marginBottom: block.attribution ? "0.5em" : 0,
                   fontStyle: "italic",
                 }}>
@@ -230,7 +245,7 @@ function Block({ block }: { block: BodyBlock }) {
           {block.text}
         </ReactMarkdown>
         {block.attribution && (
-          <p className="f-mono text-xs" style={{ color: C.muted, marginBottom: 0 }}>
+          <p className="f-mono text-xs" style={{ color: L.body, marginBottom: 0 }}>
             — {block.attribution}
           </p>
         )}
@@ -262,7 +277,7 @@ function Block({ block }: { block: BodyBlock }) {
 function RelatedCard({ article }: { article: Article }) {
   const [hovered, setHovered] = useState(false);
   const navigate = useNavigate();
-  const accentColor = categoryColorMap[article.lux_category] ?? C.orange;
+  const accentColor = categoryColorMap[article.lux_category] ?? C.accent;
 
   return (
     <motion.div
@@ -270,12 +285,12 @@ function RelatedCard({ article }: { article: Article }) {
       onMouseLeave={() => setHovered(false)}
       onClick={() => navigate(`/news/${article.slug}`)}
       className="cursor-pointer rounded-sm border p-5 flex flex-col gap-3 transition-colors"
-      style={{ background: C.navyCard, borderColor: hovered ? C.borderOrange : C.border }}>
+      style={{ background: C.navyCard, borderColor: hovered ? C.borderAccent : C.border }}>
       <p className="text-xs f-mono uppercase tracking-wider" style={{ color: accentColor }}>
         {categoryDisplayName[article.lux_category]}
       </p>
       <h3 className="f-display font-semibold leading-tight text-base"
-        style={{ color: hovered ? C.orange : C.offWhite, transition: "color 0.2s" }}>
+        style={{ color: hovered ? C.accent : C.offWhite, transition: "color 0.2s" }}>
         {article.title}
       </h3>
       <div className="flex items-center gap-2 text-xs f-mono mt-auto" style={{ color: C.dim }}>
@@ -343,7 +358,7 @@ export default function ArticleDetail() {
         <div className="mx-auto px-6 py-32 text-center" style={{ maxWidth: "75rem" }}>
           <p className="f-mono text-lg mb-6" style={{ color: C.muted }}>Article not found.</p>
           <button onClick={() => navigate("/news")} className="flex items-center gap-2 mx-auto text-sm"
-            style={{ color: C.orange }}>
+            style={{ color: C.accent }}>
             <ArrowLeft size={16} /> Back to News
           </button>
         </div>
@@ -353,7 +368,7 @@ export default function ArticleDetail() {
 
   const author = authorById(article.lux_author);
   const category = categoryBySlug(article.lux_category);
-  const accentColor = categoryColorMap[article.lux_category] ?? C.orange;
+  const accentColor = categoryColorMap[article.lux_category] ?? C.accent;
 
   const related = allArticles
     .filter(a => a.id !== article.id && a.lux_category === article.lux_category)
@@ -375,7 +390,7 @@ export default function ArticleDetail() {
 
       {/* ── Hero ── */}
       <div className="relative overflow-hidden"
-        style={{ background: `linear-gradient(180deg, rgba(6,8,26,0) 0%, ${C.navy} 100%)` }}>
+        style={{ background: `linear-gradient(180deg, rgba(5,14,13,0) 0%, ${C.navy} 100%)` }}>
         {/* atmospheric glow */}
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: `radial-gradient(ellipse 60% 50% at 50% 0%, ${accentColor}18 0%, transparent 70%)` }} />
@@ -481,6 +496,8 @@ export default function ArticleDetail() {
         </motion.div>
       )}
 
+      {/* ── Light reading band: body + author bio ── */}
+      <div style={{ background: L.bg }} className="pt-14 lg:pt-20">
       {/* ── Body ── */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -497,19 +514,21 @@ export default function ArticleDetail() {
       {/* ── Author Bio ── */}
       <div className="mx-auto px-6 lg:px-8 pb-16" style={{ maxWidth: "75rem" }}>
         <div className="rounded-sm border p-6 flex gap-4"
-          style={{ background: C.navyCard, borderColor: C.border }}>
+          style={{ background: L.card, borderColor: L.border }}>
           <div className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center"
-            style={{ background: accentColor + "22" }}>
-            <span className="text-lg f-display font-semibold" style={{ color: accentColor }}>
+            style={{ background: accentColor + "33" }}>
+            <span className="text-lg f-display font-semibold" style={{ color: L.ink }}>
               {author.name.charAt(0)}
             </span>
           </div>
           <div>
-            <p className="font-medium mb-0.5" style={{ color: C.offWhite }}>{author.name}</p>
-            <p className="text-xs f-mono mb-3" style={{ color: accentColor }}>{author.role}</p>
-            <p className="text-sm leading-relaxed" style={{ color: C.muted }}>{author.bio}</p>
+            <p className="font-medium mb-0.5" style={{ color: L.ink }}>{author.name}</p>
+            <p className="text-xs f-mono mb-3" style={{ color: L.accentText }}>{author.role}</p>
+            <p className="text-sm leading-relaxed" style={{ color: L.body }}>{author.bio}</p>
           </div>
         </div>
+      </div>
+
       </div>
 
       {/* ── Related ── */}
@@ -522,7 +541,7 @@ export default function ArticleDetail() {
               </h2>
               <button onClick={() => navigate("/news")}
                 className="flex items-center gap-1.5 text-sm f-mono hover:opacity-80 transition-opacity"
-                style={{ color: C.orange }}>
+                style={{ color: C.accent }}>
                 All articles <ArrowRight size={14} />
               </button>
             </div>
@@ -535,14 +554,7 @@ export default function ArticleDetail() {
         </div>
       )}
 
-      {/* ── Footer ── */}
-      <footer className="border-t py-10" style={{ background: C.navy, borderColor: C.border }}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 text-center">
-          <p className="text-sm f-mono" style={{ color: C.dim }}>
-            © 2026 DESILO Europe. Built on privacy-preserving technology.
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

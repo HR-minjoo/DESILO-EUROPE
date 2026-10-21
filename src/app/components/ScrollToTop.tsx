@@ -1,23 +1,33 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { useLocation } from "react-router";
 
-export function ScrollToTop() {
-  const { pathname } = useLocation();
+/** Instantly jump to top, ignoring CSS `scroll-behavior: smooth`. */
+function forceScrollTop() {
+  const html = document.documentElement;
+  const prev = html.style.scrollBehavior;
+  html.style.scrollBehavior = "auto";
 
-  useEffect(() => {
-    // Disable browser's scroll restoration
+  window.scrollTo(0, 0);
+  html.scrollTop = 0;
+  document.body.scrollTop = 0;
+
+  html.style.scrollBehavior = prev;
+}
+
+export function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+
+  useLayoutEffect(() => {
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
 
-    // Force scroll to top immediately on route change with instant behavior
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    
-    // Additional insurance - use requestAnimationFrame
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    });
-  }, [pathname]);
+    // Hash links (e.g. #holmes-logo) handle their own target scroll.
+    if (hash) return;
+
+    forceScrollTop();
+    requestAnimationFrame(forceScrollTop);
+  }, [pathname, hash]);
 
   return null;
 }

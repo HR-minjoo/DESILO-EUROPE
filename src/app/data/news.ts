@@ -103,7 +103,7 @@ export const categories: Category[] = [
     id: "tech",
     name: "Tech & Insights",
     slug: "tech-insights",
-    accentColor: "#FF5A1F",
+    accentColor: "#22C48C",
     description: "Deep dives into homomorphic encryption, privacy-preserving ML, and the cryptography powering HOLMES.",
     order: 1,
   },
@@ -111,7 +111,7 @@ export const categories: Category[] = [
     id: "company",
     name: "Company News",
     slug: "company-news",
-    accentColor: "#4A9EFF",
+    accentColor: "#A6D86E",
     description: "Announcements, milestones, and updates from DESILO Europe.",
     order: 2,
   },
@@ -119,7 +119,7 @@ export const categories: Category[] = [
     id: "fraud",
     name: "Fraud Trends",
     slug: "fraud-trends",
-    accentColor: "#FF4A4A",
+    accentColor: "#E5B45A",
     description: "Analysis of evolving financial crime patterns and the intelligence needed to counter them.",
     order: 3,
   },
@@ -127,7 +127,7 @@ export const categories: Category[] = [
     id: "regulatory",
     name: "Regulatory",
     slug: "regulatory",
-    accentColor: "#8E8E93",
+    accentColor: "#93A69F",
     description: "European financial regulation, AML directives, and what they mean for collaborative fraud intelligence.",
     order: 4,
   },
@@ -153,10 +153,10 @@ export const featuredArticles = articles
   .sort((a, b) => (a.featureOrder ?? 99) - (b.featureOrder ?? 99));
 
 export const categoryColorMap: Record<string, string> = {
-  "tech-insights": "#FF5A1F",
-  "company-news":  "#4A9EFF",
-  "fraud-trends":  "#FF4A4A",
-  "regulatory":    "#8E8E93",
+  "tech-insights": "#22C48C",
+  "company-news":  "#A6D86E",
+  "fraud-trends":  "#E5B45A",
+  "regulatory":    "#93A69F",
 };
 
 export const categoryDisplayName: Record<string, string> = {
