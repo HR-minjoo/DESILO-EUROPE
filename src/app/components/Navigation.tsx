@@ -9,11 +9,14 @@ import { LangToggle } from "@/app/components/LangToggle";
 import { T } from "@/app/data/translations";
 
 const C = {
-  navy: "#06081A",
+  navy: "#050E0D",
   orange: "#FF5A1F",
+  accent: "#22C48C",
+  accentLight: "#4FD3A5",
+  borderAccent: "rgba(34,196,140,0.3)",
   orangeLight: "#FF7040",
   offWhite: "#F2EEE8",
-  muted: "#7A7D9A",
+  muted: "#8C9A95",
   border: "rgba(255,255,255,0.07)",
 };
 
@@ -56,7 +59,6 @@ export function Navigation() {
   const navigateToProduct = () => {
     setOpen(false);
     forceTop();
-    // Clear any leftover hash (e.g. #holmes-logo) so Solution always starts at the top.
     navigate({ pathname: "/product", hash: "" });
     requestAnimationFrame(forceTop);
     setTimeout(forceTop, 0);
@@ -86,7 +88,7 @@ export function Navigation() {
     <nav
       className="sticky top-0 z-40 transition-all duration-500"
       style={{
-        background: solid ? "rgba(6,8,26,0.92)" : "rgba(6,8,26,0.70)",
+        background: solid ? "rgba(5,14,13,0.97)" : "rgba(5,14,13,0.95)",
         backdropFilter: "blur(20px)",
         borderBottom: `1px solid ${C.border}`,
       }}
@@ -95,7 +97,6 @@ export function Navigation() {
         className="max-w-7xl mx-auto px-6 lg:px-10 py-2 flex items-center justify-between gap-8"
         style={{ minHeight: "6rem" }}
       >
-        {/* Logo */}
         <button
           onClick={navigateToHome}
           className="flex items-center flex-shrink-0 hover:opacity-80 transition-opacity"
@@ -108,10 +109,9 @@ export function Navigation() {
           />
         </button>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-7 text-sm" style={{ color: C.muted }}>
+        <div className="hidden md:flex items-center gap-[38px] text-sm" style={{ color: C.muted }}>
           <button
-            onClick={() => isHome ? scrollToSection("hero") : navigateToHome()}
+            onClick={() => (isHome ? scrollToSection("hero") : navigateToHome())}
             className="hover:text-white transition-colors"
             style={{ color: isHome ? C.offWhite : C.muted }}
           >
@@ -120,20 +120,19 @@ export function Navigation() {
           <button
             onClick={navigateToProduct}
             className="hover:text-white transition-colors"
-            style={{ color: isProduct ? C.orange : C.muted }}
+            style={{ color: isProduct ? C.accent : C.muted }}
           >
             {t.nav.product}
           </button>
           <button
             onClick={navigateToNews}
             className="hover:text-white transition-colors"
-            style={{ color: isNews ? C.orange : C.muted }}
+            style={{ color: isNews ? C.accent : C.muted }}
           >
             {t.nav.news}
           </button>
         </div>
 
-        {/* Right Side */}
         <div className="flex items-center gap-3">
           <LangToggle />
           <a
@@ -145,9 +144,9 @@ export function Navigation() {
             target="_blank"
             rel="noopener noreferrer"
             className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-sm transition-all duration-200"
-            style={{ background: C.orange, color: "#fff" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = C.orangeLight)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = C.orange)}
+            style={{ background: C.accent, color: C.navy }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = C.accentLight)}
+            onMouseLeave={(e) => (e.currentTarget.style.background = C.accent)}
           >
             {t.nav.cta}
           </a>
@@ -161,7 +160,6 @@ export function Navigation() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -169,10 +167,10 @@ export function Navigation() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             className="md:hidden px-6 pb-5 pt-2 flex flex-col gap-4"
-            style={{ background: "rgba(6,8,26,0.97)", borderTop: `1px solid ${C.border}` }}
+            style={{ background: "rgba(5,14,13,0.97)", borderTop: `1px solid ${C.border}` }}
           >
             <button
-              onClick={() => isHome ? scrollToSection("hero") : navigateToHome()}
+              onClick={() => (isHome ? scrollToSection("hero") : navigateToHome())}
               className="text-left py-1.5 text-sm"
               style={{ color: isHome ? C.offWhite : C.muted }}
             >
@@ -181,14 +179,14 @@ export function Navigation() {
             <button
               onClick={navigateToProduct}
               className="text-left py-1.5 text-sm"
-              style={{ color: isProduct ? C.orange : C.muted }}
+              style={{ color: isProduct ? C.accent : C.muted }}
             >
               {t.nav.product}
             </button>
             <button
               onClick={navigateToNews}
               className="text-left py-1.5 text-sm"
-              style={{ color: isNews ? C.orange : C.muted }}
+              style={{ color: isNews ? C.accent : C.muted }}
             >
               {t.nav.news}
             </button>
@@ -201,7 +199,7 @@ export function Navigation() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex justify-center items-center py-2.5 text-sm font-medium rounded-sm"
-              style={{ background: C.orange, color: "#fff" }}
+              style={{ background: C.accent, color: C.navy }}
             >
               {t.nav.cta}
             </a>
